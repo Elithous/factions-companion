@@ -1,0 +1,30 @@
+.map-container {
+    background-color: white;
+    z-index: -5;
+    border: 2px solid black;
+}
+
+.map {
+    display: grid;
+}
+
+.map-square {
+    aspect-ratio: 1 / 1;
+    &.selected {
+        margin: -1px;
+        border: 1px dashed black;
+    }
+    /* opacity: 50%; */
+    /* &.even-row {
+        background-color: rgb(98, 98, 207);
+        &:nth-child(even) {
+            background-color: rgb(160, 70, 70);
+        }
+    }
+    &.odd-row {
+        background-color: rgb(160, 70, 70);
+        &:nth-child(even) {
+            background-color: rgb(98, 98, 207);
+        }
+    } */
+}

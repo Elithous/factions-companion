@@ -1,0 +1,46 @@
+.game-filter {
+  color: black;
+}
+
+.map-stats {
+  margin: 10px;
+  display: flex;
+}
+
+.map-wrapper {
+  height: 80vh;
+  width: 50%;
+  align-content: center;
+}
+
+.map-container {
+  margin: auto;
+  aspect-ratio: 1/1;
+  max-height: 100%;
+}
+
+@media (min-aspect-ratio: 1) {
+  .map-wrapper {
+    height: 80vh;
+    width: 50%;
+  }
+
+  .stats-container {
+    width: 50%;
+  }
+}
+
+@media (max-aspect-ratio: 0.999) {
+  .map-stats {
+    flex-direction: column;
+  }
+
+  .map-wrapper {
+    height: 50vh;
+    width: 100%;
+  }
+
+  .stats-container {
+    width: 100%;
+  }
+}

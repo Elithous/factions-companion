@@ -20,8 +20,8 @@ export default function RootLayout({
       <body
         className={`${factionsFont.className} sans-serif`}
       >
-        <Navbar />
         {children}
+        <Navbar />
       </body>
     </html>
   );
