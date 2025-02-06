@@ -5,35 +5,82 @@ import './stats.css';
 import MapComponent from "@/components/map/map";
 import MapModel from "@/components/map/map.model";
 import StatsComponent from '@/components/stats/stats';
+import { fetchBackend } from '@/utils/api.helper';
 import { useEffect, useState } from 'react';
-
-enum LoadingState {
-  OptionsLoading,
-  DataLoading,
-  Loaded
-}
 
 export interface StatsFilter {
   gameId: string,
-  tile: { x: number, y: number }
+  tile: { x: number, y: number },
+  playerName: string
+}
+
+export interface ToFromFaction {
+  [fromFaction: string]: {
+    [toFaction: string]: number
+  }
+}
+
+export interface StatsData {
+  total: ToFromFaction,
+  filtered: ToFromFaction
 }
 
 export default function StatsPage() {
-  const [loadingState, setLoadingState] = useState(LoadingState.OptionsLoading);
+  const [optionsLoading, setOptionsLoading] = useState(true);
   const [gameIds, setGameIds] = useState([] as string[]);
   const [filter, setFilter] = useState({} as StatsFilter);
+  const [player, setPlayer] = useState('');
+  const [totalData, setTotalData] = useState({} as ToFromFaction);
+  const [filteredData, setFilteredData] = useState({} as ToFromFaction);
 
   const updateFilter = (rule: Partial<StatsFilter>) => setFilter({ ...filter, ...rule });
+  // Use effect to allow a user to stop typing before the name is searched
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      updateFilter({ playerName: player });
+    }, 1500)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [player])
 
   useEffect(() => {
-    setLoadingState(LoadingState.OptionsLoading);
-    setGameIds(['20', '21']);
-    setLoadingState(LoadingState.DataLoading);
+    fetchBackend('/report/games')
+      .then((resp) => resp.json())
+      .then((data) => {
+        setGameIds(data);
+        setOptionsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
-    setLoadingState(LoadingState.DataLoading);
-    setLoadingState(LoadingState.Loaded);
+    if (filter.gameId) {
+      setTotalData({});
+      fetchBackend('/report/soldiers', { gameId: filter.gameId })
+        .then((resp) => resp.json())
+        .then((data) => {
+          setTotalData(data);
+        });
+    }
+  }, [filter.gameId]);
+
+  useEffect(() => {
+    if (filter.gameId) {
+      setFilteredData({});
+      const params: any = { gameId: filter.gameId };
+      if (filter?.tile?.x && filter?.tile?.y) {
+        params.tileX = filter.tile.x;
+        params.tileY = filter.tile.y;
+      }
+      if (filter?.playerName) {
+        params.playerName = filter.playerName;
+      }
+
+      fetchBackend('/report/soldiers', params)
+        .then((resp) => resp.json())
+        .then((data) => {
+          setFilteredData(data);
+        });
+    }
   }, [filter]);
 
   const mapModel: MapModel = {
@@ -42,7 +89,15 @@ export default function StatsPage() {
     tiles: []
   };
 
-  const onTileClicked = async (x: number, y: number) => updateFilter({ tile: { x, y } });
+  const onTileClicked = async (x: number, y: number) => {
+    console.log(totalData);
+    if (filter?.tile?.x === x && filter?.tile?.y === y) {
+      updateFilter({ tile: undefined });
+    }
+    else {
+      updateFilter({ tile: { x, y } });
+    }
+  }
 
   const mapComponentProps = {
     map: mapModel,
@@ -51,10 +106,14 @@ export default function StatsPage() {
     coordClicked: onTileClicked
   };
   const statsProps = {
-    filter
+    filter,
+    data: {
+      total: totalData,
+      filtered: filteredData
+    }
   };
 
-  if (loadingState === LoadingState.OptionsLoading) return <p>Loading...</p>;
+  if (optionsLoading) return <p>Loading...</p>;
 
   return (
     <div>
@@ -69,15 +128,17 @@ export default function StatsPage() {
             ))}
           </select>
         </div>
-      </div>
-      {loadingState === LoadingState.Loaded ?
-        <div className='map-stats'>
-          <div className='map-wrapper'>
-            <MapComponent {...mapComponentProps} />
-          </div>
-          <StatsComponent {...statsProps} />
+        <div className='player-filter'>
+            <label htmlFor='name-input'>Player Name: </label>
+            <input id='name-input' type='text' value={player} onChange={(e) => setPlayer(e.target.value)}/>
         </div>
-      : <p>Loading...</p>}
+      </div>
+      <div className='map-stats'>
+        <div className='map-wrapper'>
+          <MapComponent {...mapComponentProps} />
+        </div>
+          <StatsComponent {...statsProps} />
+      </div>
     </div>
   );
 }

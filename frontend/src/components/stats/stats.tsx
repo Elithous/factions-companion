@@ -1,13 +1,27 @@
-import { StatsFilter } from "@/app/stats/page";
+import './stats.scss';
 
-export default function StatsComponent(props: { filter: StatsFilter }) {
-  const { filter } = props;
+import { StatsData, StatsFilter } from "@/app/stats/page";
+import StatsTable from './statsTable';
+
+export default function StatsComponent(props: { filter: StatsFilter, data: StatsData }) {
+  const { filter, data } = props;
 
   return (
     <div className='stats-container'>
-      Stats 🫡
-      { filter?.tile && <div>Tile: {filter.tile.x}, {filter.tile.y}</div> }
-      { filter?.gameId && <div>GameId: {filter.gameId}</div>}
+      {data?.total &&
+        <div className='faction-totals'>
+          <StatsTable data={data.total} title={'Totals by Faction'} />
+        </div>
+      }
+      {data?.filtered &&
+        <div className='filtered-totals'>
+          <div className='filters'>
+            { filter.playerName && <p>Player: {filter.playerName}</p>}
+            { filter.tile && <p>Tile: {filter.tile.x}, {filter.tile.y}</p>}
+          </div>
+          <StatsTable data={data.filtered} title={'Totals by Filter'} />
+        </div>
+      }
     </div>
   )
 };

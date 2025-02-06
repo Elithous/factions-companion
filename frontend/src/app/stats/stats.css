@@ -1,5 +1,16 @@
-.game-filter {
-  color: black;
+
+.filters {
+  display: flex;
+  .game-filter {
+    color: black;
+    margin: auto;
+  }
+  .player-filter {
+    margin: auto;
+    #name-input {
+      color: black;
+    }
+  }
 }
 
 .map-stats {

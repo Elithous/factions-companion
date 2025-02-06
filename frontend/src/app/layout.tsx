@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from 'next/font/local'
-import "./globals.css";
+import "./globals.scss";
 import Navbar from "@/components/navbar/navbar";
 
 const factionsFont = localFont({ src: './retrogaming.ttf' });
@@ -18,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+        id="mainbody"
         className={`${factionsFont.className} sans-serif`}
       >
         {children}

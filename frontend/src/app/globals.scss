@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$orange-50: #F7F3ED;
+$orange-100: #E9DDCE;
+$orange-200: #DBC7AE;
+$orange-300: #CDB18E;
+$orange-400: #BF9B6E;
+$orange-500: #B0854F;
+$orange-600: #8D6A3F;
+$orange-700: #6A502F;
+$orange-800: #47351F;
+$orange-900: #231B10;
+
+$faction-red: #5D0909;
+$faction-green: #284026;
+$faction-blue: #2a4365;
+$faction-yellow: #654C01;
+$faction-neutral: #696969;
+
+$background: $orange-600;
+$foreground: $orange-100;
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+body {
+  color: $foreground;
+  background: $background;
+  font-family: 'Retro gaming', sans-serif;
+}

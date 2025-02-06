@@ -1,17 +1,19 @@
 @use "sass:math";
 @use "sass:color";
 
+@use "../../app/globals.scss" as global;
+
 $toggleSize: 30px;
 $toggleMargin: 12px;
 $toggleLine: 3px;
-$toggleColor: black;
+$toggleColor: global.$orange-900;
 
-body {
+#mainbody {
   margin-top: $toggleSize + ($toggleMargin * 2);
 }
 
 .nav-container {
-  background-color: #B0854F;
+  background-color: global.$orange-500;
   top: 0;
   position: fixed;
   display: inline-block;
@@ -107,7 +109,7 @@ body {
     padding: 10px 20px 20px 10px;
     transition: transform .3s ease;
     transform: translate(calc(-100% - 50px), 0);
-    background: #B0854F;
+    background: global.$orange-500;
     display: grid;
     grid-template-columns: 1fr;
     // grid-gap: 5px 0;
@@ -115,14 +117,14 @@ body {
     box-shadow: 0 50px 50px rgba(0, 0, 0, 0.3);
 
     .nav-item {
-      border: 1px solid #231B10;
-      background: #47351F;
+      border: 1px solid global.$orange-900;
+      background: global.$orange-800;
       padding: 10px;
       transition: background-color .3s ease;
 
       &:hover {
         cursor: pointer;
-        background: color.adjust(#47351F, $lightness: -10%);
+        background: color.adjust(global.$orange-800, $lightness: -10%);
       }
     }
   }
