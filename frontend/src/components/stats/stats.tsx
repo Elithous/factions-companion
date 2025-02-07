@@ -1,9 +1,9 @@
 import './stats.scss';
 
-import { StatsData, StatsFilter } from "@/app/stats/page";
+import { StatsFilter, ToFromFaction } from "@/app/stats/page";
 import StatsTable from './statsTable';
 
-export default function StatsComponent(props: { filter: StatsFilter, data: StatsData }) {
+export default function StatsComponent(props: { filter: StatsFilter, data: { total: ToFromFaction, filtered: ToFromFaction} }) {
   const { filter, data } = props;
 
   return (
