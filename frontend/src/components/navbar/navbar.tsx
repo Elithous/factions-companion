@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import "./navbar.scss";
 import React, { useState } from 'react';
 
@@ -17,8 +18,8 @@ export default function Navbar() {
       </div>
 
       <nav className="nav-items">
-        <a className="nav-item" href='/'>Home</a>
-        <a className="nav-item" href='/stats'>Stats</a>
+        <Link className="nav-item" href='/'>Home</Link>
+        <Link className="nav-item" href='/stats'>Stats</Link>
       </nav>
     </div>
   )

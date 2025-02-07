@@ -7,7 +7,7 @@ import Panzoom from "@panzoom/panzoom";
 import { MouseEvent, useEffect } from "react";
 import MapModel from "./map.model";
 
-function setupPanzoom(wheelParentDepth: number) {
+function usePanzoom(wheelParentDepth: number) {
   // Use PanZoom library to allow pan and zoom
   useEffect(() => {
     const innerMap = document.getElementById('inner-map');
@@ -35,10 +35,8 @@ export default function MapComponent(props: {
   tile: { x: number, y: number },
   coordClicked: (x: number, y: number) => void
 }) {
-  let { map, wheelParentDepth, coordClicked, tile } = props;
-  if (!wheelParentDepth) {
-    wheelParentDepth = 0;
-  }
+  const { map, coordClicked, tile } = props;
+  const wheelParentDepth = props?.wheelParentDepth ?? 0
 
   // Capture click events to notify caller which tile is clicked.
   let doubleClick = false;
@@ -56,13 +54,13 @@ export default function MapComponent(props: {
     if (!e) return;
     const id = e.currentTarget.id;
     if (!id) return;
-    let [x, y] = id.split(',');
+    const [x, y] = id.split(',');
     if (Number.isNaN(parseInt(x)) || Number.isNaN(parseInt(y))) return;
     coordClicked(parseInt(x), parseInt(y));
   }
 
   // Set up map grid based on prop input
-  let mapArray = [];
+  const mapArray = [];
   for (let y = 0; y < map.dimensions.y; y++) {
     for (let x = 0; x < map.dimensions.x; x++) {
       let mapClass = 'map-square';
@@ -79,7 +77,7 @@ export default function MapComponent(props: {
     }
   }
 
-  setupPanzoom(wheelParentDepth);
+  usePanzoom(wheelParentDepth);
 
   return (
     <div className="map-container">

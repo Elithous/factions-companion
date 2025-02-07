@@ -67,10 +67,16 @@ export default function StatsPage() {
   useEffect(() => {
     if (filter.gameId) {
       setFilteredData({});
-      const params: any = { gameId: filter.gameId };
+      const params: {
+        gameId?: string,
+        tileX?: string,
+        tileY?: string,
+        playerName?: string
+      } = { gameId: filter.gameId };
+
       if (filter?.tile?.x && filter?.tile?.y) {
-        params.tileX = filter.tile.x;
-        params.tileY = filter.tile.y;
+        params.tileX = filter.tile.x.toString();
+        params.tileY = filter.tile.y.toString();
       }
       if (filter?.playerName) {
         params.playerName = filter.playerName;
