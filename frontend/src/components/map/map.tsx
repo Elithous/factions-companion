@@ -1,7 +1,6 @@
 "use client"
 
 import "./map.css";
-import bg from '../../../public/maps/Volbadihr.png';
 
 import Panzoom from "@panzoom/panzoom";
 import { MouseEvent, useEffect } from "react";
