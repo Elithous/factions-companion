@@ -91,6 +91,7 @@ export default function MapComponent(props: {
         }}>
         {mapArray}
       </div>
+      <p>Double click map to filter by tile</p>
     </div>
   )
 };
