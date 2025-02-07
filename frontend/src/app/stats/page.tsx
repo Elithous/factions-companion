@@ -3,18 +3,19 @@
 import './stats.css';
 
 import MapComponent from "@/components/map/map";
-import MapModel from "@/components/map/map.model";
+import { MapModel, MapTilesListModel } from "@/components/map/map.model";
 import StatsComponent from '@/components/stats/stats';
 import { fetchBackend } from '@/utils/api.helper';
 import { useEffect, useState } from 'react';
 
 import Volbadihr from '../../../public/maps/Volbadihr.png';
 import Rivers from '../../../public/maps/Rivers.png';
+import { StaticImageData } from 'next/image';
 
 export interface StatsFilter {
-  gameId: string,
-  tile: { x: number, y: number },
-  playerName: string
+  gameId?: string,
+  tile?: { x: number, y: number },
+  playerName?: string
 }
 
 export interface ToFromFaction {
@@ -23,20 +24,17 @@ export interface ToFromFaction {
   }
 }
 
-export interface StatsData {
-  total: ToFromFaction,
-  filtered: ToFromFaction
-}
-
 export default function StatsPage() {
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [gameIds, setGameIds] = useState([] as string[]);
-  const [filter, setFilter] = useState({} as StatsFilter);
+  const [filter, setFilter] = useState<StatsFilter>({});
   const [player, setPlayer] = useState('');
-  const [totalData, setTotalData] = useState({} as ToFromFaction);
-  const [filteredData, setFilteredData] = useState({} as ToFromFaction);
+  const [totalData, setTotalData] = useState<ToFromFaction>({});
+  const [filteredData, setFilteredData] = useState<ToFromFaction>({});
+  const [mapImage, setMapImage] = useState<StaticImageData>();
+  const [mapTiles, setMapTiles] = useState<MapTilesListModel>({});
 
-  const updateFilter = (rule: Partial<StatsFilter>) => setFilter({ ...filter, ...rule });
+  const updateFilter = (rule: StatsFilter) => setFilter({ ...filter, ...rule });
   // Use effect to allow a user to stop typing before the name is searched
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -59,17 +57,24 @@ export default function StatsPage() {
   useEffect(() => {
     if (filter.gameId) {
       setTotalData({});
-      fetchBackend('/report/soldiers', { gameId: filter.gameId })
+      fetchBackend('/report/soldiers/faction', { gameId: filter.gameId })
         .then((resp) => resp.json())
         .then((data) => {
           setTotalData(data);
         });
+
+      // TODO: Set this based on game config api response
+      if (filter.gameId === '20') {
+        setMapImage(Volbadihr);
+      }
+      else if (filter.gameId === '22') {
+        setMapImage(Rivers);
+      }
     }
   }, [filter.gameId]);
 
   useEffect(() => {
     if (filter.gameId) {
-      setFilteredData({});
       const params: {
         gameId?: string,
         tileX?: string,
@@ -85,26 +90,41 @@ export default function StatsPage() {
         params.playerName = filter.playerName;
       }
 
-      fetchBackend('/report/soldiers', params)
+      setFilteredData({});
+      fetchBackend('/report/soldiers/faction', params)
         .then((resp) => resp.json())
         .then((data) => {
           setFilteredData(data);
         });
+
+      fetchBackend('/report/soldiers/tile', params)
+        .then((resp) => resp.json())
+        .then((data) => {
+          const maxValue = Object.keys(data).reduce((prev, x) => {
+            const max: number = Object.values<number>(data[x]).reduce((maxY, value) => (maxY > value ? maxY : value), 0);
+            return max > prev ? max : prev;
+          }, 0);
+
+          const mapTiles: MapTilesListModel = {};
+          for (const xKey of Object.keys(data)) {
+            const x = parseInt(xKey);
+            if (!mapTiles[x]) mapTiles[x] = {};
+            for (const yKey of Object.keys(data[x])) {
+              const y = parseInt(yKey);
+              mapTiles[x][y] = {
+                weight: data[xKey][yKey] / maxValue
+              }
+            }
+          }
+          setMapTiles(mapTiles);
+        });
     }
   }, [filter]);
 
-  let image = Volbadihr;
-  if (filter?.gameId === '20') {
-    image = Volbadihr;
-  }
-  else if (filter?.gameId === '22') {
-    image = Rivers;
-  }
-
   const mapModel: MapModel = {
     dimensions: { x: 50, y: 50 },
-    image,
-    tiles: []
+    image: mapImage,
+    tiles: mapTiles
   };
 
   const onTileClicked = async (x: number, y: number) => {
@@ -119,7 +139,7 @@ export default function StatsPage() {
   const mapComponentProps = {
     map: mapModel,
     wheelParentDepth: 2,
-    tile: filter?.tile ?? {},
+    tile: filter?.tile,
     coordClicked: onTileClicked
   };
   const statsProps = {

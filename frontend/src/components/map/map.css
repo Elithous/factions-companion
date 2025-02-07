@@ -1,5 +1,4 @@
 .map-container {
-  background-color: white;
   z-index: -5;
   border: 2px solid black;
 }
@@ -11,16 +10,17 @@
 .map-square {
   cursor: pointer;
   aspect-ratio: 1 / 1;
+  background-color: unset;
+  opacity: 75%;
 
-  
   &:hover {
     margin: -1px;
-    border: 1px dashed red;
+    border: 1px dashed black;
   }
 
   &.selected {
     margin: -1px;
-    border: 1px solid red;
+    border: 1px solid black;
   }
 }
 

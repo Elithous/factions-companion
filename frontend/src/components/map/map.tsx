@@ -4,7 +4,8 @@ import "./map.css";
 
 import Panzoom from "@panzoom/panzoom";
 import { MouseEvent, useEffect } from "react";
-import MapModel from "./map.model";
+import { MapModel } from "./map.model";
+import { weightToColor } from "@/utils/color.helper";
 
 function usePanzoom(wheelParentDepth: number) {
   // Use PanZoom library to allow pan and zoom
@@ -28,10 +29,16 @@ function usePanzoom(wheelParentDepth: number) {
   }, []);
 }
 
+const heatmapGradient = [
+  { weight: 0, color: '#00FF00' }, // Green
+  { weight: 0.1, color: '#0000FF' }, // Blue
+  { weight: 1, color: '#FF0000' }  // Red
+];
+
 export default function MapComponent(props: {
   map: MapModel,
   wheelParentDepth?: number,
-  tile: { x: number, y: number },
+  tile?: { x: number, y: number },
   coordClicked: (x: number, y: number) => void
 }) {
   const { map, coordClicked, tile } = props;
@@ -65,11 +72,16 @@ export default function MapComponent(props: {
       let mapClass = 'map-square';
       mapClass += tile?.x === x && tile?.y === y ? ' selected' : '';
 
+      const tileData = map.tiles[x]?.[y];
+      const backgroundColor = tileData?.weight !== undefined ?
+        weightToColor(tileData.weight || 0, heatmapGradient)
+        : 'unset';
+
       mapArray.push(
         <div id={`${x},${y}`}
           className={mapClass}
           key={(y * map.dimensions.y) + x}
-          style={{ gridRow: y + 1, gridColumn: x + 1 }}
+          style={{ gridRow: y + 1, gridColumn: x + 1, backgroundColor }}
           onClick={tileClicked}>
         </div>
       );
@@ -78,11 +90,23 @@ export default function MapComponent(props: {
 
   usePanzoom(wheelParentDepth);
 
+  const backgroundStyles: {
+    backgroundImage?: string,
+    backgroundColor?: string,
+    opacity?: string
+  } = {};
+  if (map.image) {
+    backgroundStyles.backgroundImage = `url(${map.image.src})`;
+  } else {
+    backgroundStyles.backgroundColor = 'black';
+    backgroundStyles.opacity = '40%';
+  }
+
   return (
     <div className="map-container">
       <div id="inner-map" className="map"
         style={{
-          backgroundImage: `url(${map.image.src})`,
+          ...backgroundStyles,
           width: '100%',
           height: 'auto',
           backgroundRepeat: 'no-repeat',

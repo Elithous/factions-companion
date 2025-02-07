@@ -1,16 +1,20 @@
 import { StaticImageData } from "next/image"
 
-export default interface MapModel {
+export interface MapTileModel {
+    weight?: number
+}
+
+export interface MapTilesListModel {
+    [x: number]: {
+        [y: number]: MapTileModel
+    }
+}
+
+export interface MapModel {
     dimensions: {
         x: number,
         y: number
     },
-    tiles: {
-        [x: number]: {
-            [y: number]: {
-                type: string
-            }
-        }
-    },
-    image: StaticImageData
+    tiles: MapTilesListModel,
+    image: StaticImageData | undefined
 }
