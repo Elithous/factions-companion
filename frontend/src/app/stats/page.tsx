@@ -44,6 +44,7 @@ export default function StatsPage() {
   }, [player])
 
   useEffect(() => {
+    fetchBackend('/websocket/parse', undefined, { method: 'POST' });
     fetchBackend('/report/games')
       .then((resp) => resp.json())
       .then((data) => {
@@ -90,7 +91,6 @@ export default function StatsPage() {
   };
 
   const onTileClicked = async (x: number, y: number) => {
-    console.log(totalData);
     if (filter?.tile?.x === x && filter?.tile?.y === y) {
       updateFilter({ tile: undefined });
     }
@@ -129,15 +129,15 @@ export default function StatsPage() {
           </select>
         </div>
         <div className='player-filter'>
-            <label htmlFor='name-input'>Player Name: </label>
-            <input id='name-input' type='text' value={player} onChange={(e) => setPlayer(e.target.value)}/>
+          <label htmlFor='name-input'>Player Name: </label>
+          <input id='name-input' type='text' value={player} onChange={(e) => setPlayer(e.target.value)} />
         </div>
       </div>
       <div className='map-stats'>
         <div className='map-wrapper'>
           <MapComponent {...mapComponentProps} />
         </div>
-          <StatsComponent {...statsProps} />
+        <StatsComponent {...statsProps} />
       </div>
     </div>
   );

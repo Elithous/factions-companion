@@ -1,5 +1,5 @@
 export function getApiUrl(endpoint: string) {
-  return `${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}${endpoint}`;
+  return `/api/${endpoint}`;
 }
 
 export function fetchBackend(endpoint: string, queryParams?: any, options?: RequestInit) {
