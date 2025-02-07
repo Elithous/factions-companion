@@ -1,3 +1,5 @@
+import { StaticImageData } from "next/image"
+
 export default interface MapModel {
     dimensions: {
         x: number,
@@ -10,5 +12,5 @@ export default interface MapModel {
             }
         }
     },
-    imageUrl: string
+    image: StaticImageData
 }

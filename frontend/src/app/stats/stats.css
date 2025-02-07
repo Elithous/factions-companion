@@ -16,6 +16,7 @@
 .map-stats {
   margin: 10px;
   display: flex;
+  row-gap: 20px;
 }
 
 .map-wrapper {

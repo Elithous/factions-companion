@@ -83,7 +83,7 @@ export default function MapComponent(props: {
     <div className="map-container">
       <div id="inner-map" className="map"
         style={{
-          backgroundImage: `url(${bg.src})`,
+          backgroundImage: `url(${map.image.src})`,
           width: '100%',
           height: 'auto',
           backgroundRepeat: 'no-repeat',
@@ -91,7 +91,7 @@ export default function MapComponent(props: {
         }}>
         {mapArray}
       </div>
-      <p>Double click map to filter by tile</p>
+      <div className="map-instructions">Scroll/Pinch to zoom. Double click map to filter by tile</div>
     </div>
   )
 };

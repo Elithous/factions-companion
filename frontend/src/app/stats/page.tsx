@@ -8,6 +8,9 @@ import StatsComponent from '@/components/stats/stats';
 import { fetchBackend } from '@/utils/api.helper';
 import { useEffect, useState } from 'react';
 
+import Volbadihr from '../../../public/maps/Volbadihr.png';
+import Rivers from '../../../public/maps/Rivers.png';
+
 export interface StatsFilter {
   gameId: string,
   tile: { x: number, y: number },
@@ -90,9 +93,17 @@ export default function StatsPage() {
     }
   }, [filter]);
 
+  let image = Volbadihr;
+  if (filter?.gameId === '20') {
+    image = Volbadihr;
+  }
+  else if (filter?.gameId === '22') {
+    image = Rivers;
+  }
+
   const mapModel: MapModel = {
     dimensions: { x: 50, y: 50 },
-    imageUrl: '',
+    image,
     tiles: []
   };
 
