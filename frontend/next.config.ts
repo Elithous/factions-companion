@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
         destination: `${API_URL}:${API_PORT}/:path*`
       }
     ]
+  },
+  experimental: {
+    optimizePackageImports: ["@chakra-ui/react"]
   }
 };
 

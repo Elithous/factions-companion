@@ -1,6 +1,6 @@
 "use client";
 
-import './stats.css';
+import './stats.scss';
 
 import MapComponent from "@/components/map/map";
 import { MapModel, MapTilesListModel } from "@/components/map/map.model";
@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import Volbadihr from '../../../public/maps/Volbadihr.png';
 import Rivers from '../../../public/maps/Rivers.png';
 import { StaticImageData } from 'next/image';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export interface StatsFilter {
   gameId?: string,
@@ -25,8 +27,13 @@ export interface ToFromFaction {
 }
 
 export default function StatsPage() {
+  const router = useRouter();
+  const path = usePathname();
+  const queryParams = useSearchParams();
+
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [gameIds, setGameIds] = useState([] as string[]);
+  const [gameId, setGameId] = useState(queryParams.get('gameId'));
   const [filter, setFilter] = useState<StatsFilter>({});
   const [player, setPlayer] = useState('');
   const [totalData, setTotalData] = useState<ToFromFaction>({});
@@ -55,32 +62,42 @@ export default function StatsPage() {
   }, []);
 
   useEffect(() => {
-    if (filter.gameId) {
+    // Set query param for load
+    router.replace(`${path}?gameId=${gameId}`);
+
+    // Reset filters and stats data.
+    setFilter({});
+    setTotalData({});
+    setFilteredData({});
+    setMapTiles({});
+    setPlayer('');
+
+    if (gameId) {
       setTotalData({});
-      fetchBackend('/report/soldiers/faction', { gameId: filter.gameId })
+      fetchBackend('/report/soldiers/faction', { gameId })
         .then((resp) => resp.json())
         .then((data) => {
           setTotalData(data);
         });
 
       // TODO: Set this based on game config api response
-      if (filter.gameId === '20') {
+      if (gameId === '20') {
         setMapImage(Volbadihr);
       }
-      else if (filter.gameId === '22') {
+      else if (gameId === '22') {
         setMapImage(Rivers);
       }
     }
-  }, [filter.gameId]);
+  }, [gameId]);
 
   useEffect(() => {
-    if (filter.gameId) {
+    if (gameId) {
       const params: {
         gameId?: string,
         tileX?: string,
         tileY?: string,
         playerName?: string
-      } = { gameId: filter.gameId };
+      } = { gameId: gameId };
 
       if (filter?.tile?.x && filter?.tile?.y) {
         params.tileX = filter.tile.x.toString();
@@ -156,7 +173,7 @@ export default function StatsPage() {
     <div>
       <div className='filters'>
         <div className='game-filter'>
-          <select value={filter.gameId} defaultValue={""} onChange={(e) => updateFilter({ gameId: e.target.value })}>
+          <select value={gameId || ''} onChange={(e) => setGameId(e.target.value)}>
             <option value="" disabled>Select Game</option>
             {gameIds.map(id => (
               <option key={id} value={id}>

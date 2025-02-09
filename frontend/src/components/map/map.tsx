@@ -6,6 +6,11 @@ import Panzoom from "@panzoom/panzoom";
 import { MouseEvent, useEffect } from "react";
 import { MapModel } from "./map.model";
 import { weightToColor } from "@/utils/color.helper";
+import { Button, Icon, Input, Stack, Textarea } from "@chakra-ui/react";
+import { Slider } from "../ui/slider";
+import { PopoverArrow, PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from "../ui/popover";
+import { RiSettings3Fill } from "react-icons/ri";
+import { Field } from "../ui/field";
 
 function usePanzoom(wheelParentDepth: number) {
   // Use PanZoom library to allow pan and zoom
@@ -30,8 +35,9 @@ function usePanzoom(wheelParentDepth: number) {
 }
 
 const heatmapGradient = [
-  { weight: 0, color: '#00FF00' }, // Green
-  { weight: 0.1, color: '#0000FF' }, // Blue
+  { weight: 0, color: '#FFFFFF' }, // White
+  { weight: 0.0001, color: '#00FF00' }, // Green
+  { weight: 0.01, color: '#0000FF' }, // Blue
   { weight: 1, color: '#FF0000' }  // Red
 ];
 
@@ -103,18 +109,48 @@ export default function MapComponent(props: {
   }
 
   return (
-    <div className="map-container">
-      <div id="inner-map" className="map"
-        style={{
-          ...backgroundStyles,
-          width: '100%',
-          height: 'auto',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: '100% 100%'
-        }}>
-        {mapArray}
+    <div className="map-parent">
+
+      <div className="map-container">
+        <div id="inner-map" className="map"
+          style={{
+            ...backgroundStyles,
+            width: '100%',
+            height: 'auto',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%'
+          }}>
+          {mapArray}
+        </div>
       </div>
       <div className="map-instructions">Scroll/Pinch to zoom. Double click map to filter by tile</div>
+      <div className="map-settings" hidden>
+        <PopoverRoot>
+          <PopoverTrigger asChild>
+            <Button size="md" variant="outline">
+              <Icon asChild>
+                <RiSettings3Fill />
+              </Icon>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverArrow />
+            <PopoverBody>
+              <Stack gap="4">
+                <Field label="Width">
+                  <Input placeholder="40px" />
+                </Field>
+                <Field label="Height">
+                  <Input placeholder="32px" />
+                </Field>
+                <Field label="Comments">
+                  <Textarea placeholder="Start typing..." />
+                </Field>
+              </Stack>
+            </PopoverBody>
+          </PopoverContent>
+        </PopoverRoot>
+      </div>
     </div>
   )
 };

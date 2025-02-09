@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from 'next/font/local'
 import "./globals.scss";
 import Navbar from "@/components/navbar/navbar";
+import { Provider } from "@/components/ui/provider"
 
 const factionsFont = localFont({ src: './retrogaming.ttf' });
 
@@ -16,13 +17,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         id="mainbody"
         className={`${factionsFont.className} sans-serif`}
       >
-        {children}
-        <Navbar />
+        <Provider>
+          {children}
+          <Navbar />
+        </Provider>
       </body>
     </html>
   );

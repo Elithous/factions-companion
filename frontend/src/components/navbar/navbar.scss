@@ -13,6 +13,7 @@ $toggleColor: global.$orange-900;
 }
 
 .nav-container {
+  z-index: 999;
   background-color: global.$orange-500;
   top: 0;
   position: fixed;

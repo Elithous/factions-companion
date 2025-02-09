@@ -1,6 +1,15 @@
+.map-parent {
+  width: 100%;
+  height: 100%;
+}
+
 .map-container {
-  z-index: -5;
+  position: relative;
+  z-index: 2;
   border: 2px solid black;
+  aspect-ratio: 1/1;
+  margin: auto;
+  max-height: 100%;
 }
 
 .map {
@@ -27,4 +36,10 @@
 .map-instructions {
   position: absolute;
   font-size: 10px;
+}
+
+.map-settings {
+  position: relative;
+  left: 94%;
+  top: -10px;
 }

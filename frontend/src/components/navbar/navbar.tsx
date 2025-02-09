@@ -18,8 +18,8 @@ export default function Navbar() {
       </div>
 
       <nav className="nav-items">
-        <Link className="nav-item" href='/'>Home</Link>
-        <Link className="nav-item" href='/stats'>Stats</Link>
+        <Link className="nav-item" href='/' onClick={() => setOpen(false)}>Home</Link>
+        <Link className="nav-item" href='/stats' onClick={() => setOpen(false)}>Stats</Link>
       </nav>
     </div>
   )

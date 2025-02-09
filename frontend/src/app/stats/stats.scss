@@ -1,14 +1,18 @@
+@use "../globals.scss" as global;
 
 .filters {
   display: flex;
+  flex-direction: column;
   .game-filter {
-    color: black;
     margin: auto;
+    select {
+      background-color: global.$orange-800;
+    }
   }
   .player-filter {
     margin: auto;
-    #name-input {
-      color: black;
+    input {
+      background-color: global.$orange-800;
     }
   }
 }
@@ -23,12 +27,6 @@
   height: 80vh;
   width: 50%;
   align-content: center;
-}
-
-.map-container {
-  margin: auto;
-  aspect-ratio: 1/1;
-  max-height: 100%;
 }
 
 @media (min-aspect-ratio: 1) {
