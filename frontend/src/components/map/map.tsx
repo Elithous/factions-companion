@@ -7,7 +7,6 @@ import { MouseEvent, useEffect } from "react";
 import { MapModel } from "./map.model";
 import { weightToColor } from "@/utils/color.helper";
 import { Button, Icon, Input, Stack, Textarea } from "@chakra-ui/react";
-import { Slider } from "../ui/slider";
 import { PopoverArrow, PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from "../ui/popover";
 import { RiSettings3Fill } from "react-icons/ri";
 import { Field } from "../ui/field";
