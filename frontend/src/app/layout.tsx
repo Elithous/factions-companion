@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import "./globals.scss";
 import Navbar from "@/components/navbar/navbar";
 import { Provider } from "@/components/ui/provider"
+import { Suspense } from "react";
 
 const factionsFont = localFont({ src: './retrogaming.ttf' });
 
@@ -24,8 +25,10 @@ export default function RootLayout({
         className={`${factionsFont.className} sans-serif`}
       >
         <Provider>
-          {children}
-          <Navbar />
+          <Suspense>
+            {children}
+            <Navbar />
+          </Suspense>
         </Provider>
       </body>
     </html>
