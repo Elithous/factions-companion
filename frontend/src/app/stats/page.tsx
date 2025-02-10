@@ -15,9 +15,9 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 
 export interface StatsFilter {
-  gameId?: string,
   tile?: { x: number, y: number },
-  playerName?: string
+  playerName?: string,
+  fromFaction?: string
 }
 
 export interface ToFromFaction {
@@ -96,7 +96,8 @@ export default function StatsPage() {
         gameId?: string,
         tileX?: string,
         tileY?: string,
-        playerName?: string
+        playerName?: string,
+        fromFaction?: string
       } = { gameId: gameId };
 
       if (filter?.tile?.x && filter?.tile?.y) {
@@ -105,6 +106,9 @@ export default function StatsPage() {
       }
       if (filter?.playerName) {
         params.playerName = filter.playerName;
+      }
+      if (filter?.fromFaction) {
+        params.fromFaction = filter.fromFaction;
       }
 
       setFilteredData({});
@@ -185,6 +189,18 @@ export default function StatsPage() {
         <div className='player-filter'>
           <label htmlFor='name-input'>Player Name: </label>
           <input id='name-input' type='text' value={player} onChange={(e) => setPlayer(e.target.value)} />
+        </div>
+        <div className='faction-filter'>
+            <label htmlFor='faction-select'>Faction: </label>
+            <select id='faction-select'
+              value={filter?.fromFaction || ''}
+              onChange={(e) => updateFilter({ fromFaction: e.target.value})}>
+              <option value=''>None</option>
+              <option value='blue'>Blue</option>
+              <option value='green'>Green</option>
+              <option value='red'>Red</option>
+              <option value='yellow'>Yellow</option>
+            </select>
         </div>
       </div>
       <div className='map-stats'>
