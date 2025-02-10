@@ -1,3 +1,5 @@
+@use '../../app/globals.scss' as global;
+
 .map-parent {
   width: 100%;
   height: 100%;
@@ -20,7 +22,7 @@
   cursor: pointer;
   aspect-ratio: 1 / 1;
   background-color: unset;
-  opacity: 75%;
+  opacity: 60%;
 
   &:hover {
     margin: -1px;
@@ -42,4 +44,8 @@
   position: relative;
   left: 94%;
   top: -10px;
+}
+
+.settings-popover {
+  background-color: global.$orange-700;
 }

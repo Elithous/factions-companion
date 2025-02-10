@@ -1,15 +1,15 @@
 "use client"
 
-import "./map.css";
+import "./map.scss";
 
 import Panzoom from "@panzoom/panzoom";
-import { MouseEvent, useEffect } from "react";
+import { CSSProperties, MouseEvent, useEffect, useState } from "react";
 import { MapModel } from "./map.model";
 import { weightToColor } from "@/utils/color.helper";
-import { Button, Icon, Input, Stack, Textarea } from "@chakra-ui/react";
-import { PopoverArrow, PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from "../ui/popover";
+import { Button, Icon, Stack } from "@chakra-ui/react";
+import { PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from "../ui/popover";
 import { RiSettings3Fill } from "react-icons/ri";
-import { Field } from "../ui/field";
+import { Checkbox } from "../ui/checkbox";
 
 function usePanzoom(wheelParentDepth: number) {
   // Use PanZoom library to allow pan and zoom
@@ -46,6 +46,8 @@ export default function MapComponent(props: {
   tile?: { x: number, y: number },
   coordClicked: (x: number, y: number) => void
 }) {
+  const [showHeatmap, setShowHeatmap] = useState(true);
+
   const { map, coordClicked, tile } = props;
   const wheelParentDepth = props?.wheelParentDepth ?? 0
 
@@ -78,15 +80,24 @@ export default function MapComponent(props: {
       mapClass += tile?.x === x && tile?.y === y ? ' selected' : '';
 
       const tileData = map.tiles[x]?.[y];
-      const backgroundColor = tileData?.weight !== undefined ?
+      let backgroundColor = 'transparent'
+      if (showHeatmap) {
+        backgroundColor = tileData?.weight !== undefined ?
         weightToColor(tileData.weight || 0, heatmapGradient)
-        : 'unset';
+        : 'transparent';
+      }
+
+      const styles: CSSProperties = {
+        gridRow: y + 1,
+        gridColumn: x + 1,
+        backgroundColor
+      };
 
       mapArray.push(
         <div id={`${x},${y}`}
           className={mapClass}
           key={(y * map.dimensions.y) + x}
-          style={{ gridRow: y + 1, gridColumn: x + 1, backgroundColor }}
+          style={styles}
           onClick={tileClicked}>
         </div>
       );
@@ -123,7 +134,7 @@ export default function MapComponent(props: {
         </div>
       </div>
       <div className="map-instructions">Scroll/Pinch to zoom. Double click map to filter by tile</div>
-      <div className="map-settings" hidden>
+      <div className="map-settings">
         <PopoverRoot>
           <PopoverTrigger asChild>
             <Button size="md" variant="outline">
@@ -133,18 +144,13 @@ export default function MapComponent(props: {
             </Button>
           </PopoverTrigger>
           <PopoverContent>
-            <PopoverArrow />
-            <PopoverBody>
+            <PopoverBody className="settings-popover" outline={"2px solid black"}>
               <Stack gap="4">
-                <Field label="Width">
-                  <Input placeholder="40px" />
-                </Field>
-                <Field label="Height">
-                  <Input placeholder="32px" />
-                </Field>
-                <Field label="Comments">
-                  <Textarea placeholder="Start typing..." />
-                </Field>
+                <Checkbox variant='subtle'
+                  checked={showHeatmap}
+                  onCheckedChange={(e) => setShowHeatmap(!!e.checked)}>
+                  Show Heatmap
+                </Checkbox>
               </Stack>
             </PopoverBody>
           </PopoverContent>
