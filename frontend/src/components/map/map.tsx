@@ -3,7 +3,7 @@
 import "./map.scss";
 
 import Panzoom from "@panzoom/panzoom";
-import { CSSProperties, MouseEvent, useEffect, useState } from "react";
+import { CSSProperties, MouseEvent, useEffect, useRef, useState } from "react";
 import { MapModel } from "./map.model";
 import { weightToColor } from "@/utils/color.helper";
 import { Button, Icon, Stack } from "@chakra-ui/react";
@@ -11,14 +11,28 @@ import { PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from "../ui/
 import { RiSettings3Fill } from "react-icons/ri";
 import { Checkbox } from "../ui/checkbox";
 
-function usePanzoom(wheelParentDepth: number) {
+interface CanvasProps {
+  width: number,
+  height: number
+}
+
+export interface MapProps {
+  map: MapModel,
+  wheelParentDepth?: number,
+  mapScale?: number,
+  tile?: { x: number, y: number },
+  coordClicked: (x: number, y: number) => void
+}
+
+function usePanzoom(wheelParentDepth: number, mapScale: number) {
   // Use PanZoom library to allow pan and zoom
   useEffect(() => {
     const innerMap = document.getElementById('inner-map');
     if (!innerMap) return;
 
     const panzoom = Panzoom(innerMap, {
-      maxScale: 8,
+      maxScale: 8 / mapScale,
+      startScale: 1 / mapScale,
       contain: 'outside'
     });
 
@@ -40,97 +54,145 @@ const heatmapGradient = [
   { weight: 1, color: '#FF0000' }  // Red
 ];
 
-export default function MapComponent(props: {
-  map: MapModel,
-  wheelParentDepth?: number,
-  tile?: { x: number, y: number },
-  coordClicked: (x: number, y: number) => void
-}) {
+export default function MapComponent(props: MapProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mapDivRef = useRef<HTMLDivElement>(null);
+
   const [showHeatmap, setShowHeatmap] = useState(true);
+  const [mapStyles, setMapStyles] = useState<CSSProperties>({});
+  const [canvasProps, setCanvasProps] = useState<CanvasProps>({ width: 0, height: 0 });
+  const [canvasHover, setCanvasHover] = useState<{ x: number, y: number } | null>(null);
 
   const { map, coordClicked, tile } = props;
-  const wheelParentDepth = props?.wheelParentDepth ?? 0
+  const wheelParentDepth = props?.wheelParentDepth ?? 0;
+  const mapScale = props?.mapScale ?? 1;
 
   // Capture click events to notify caller which tile is clicked.
   let doubleClick = false;
-  const tileClicked = (e: MouseEvent) => {
-    if (doubleClick) {
-      doubleClicked(e);
+  const tileClicked = () => {
+    console.log('Clicked');
+    if (doubleClick && canvasHover) {
+      console.log(`${canvasHover.x}, ${canvasHover.y}`);
+      coordClicked(canvasHover.x, canvasHover.y);
     }
     doubleClick = true;
     setTimeout(() => {
       doubleClick = false;
-    }, 300);
-  }
+    }, 500);
+  };
 
-  const doubleClicked = (e: MouseEvent) => {
-    if (!e) return;
-    const id = e.currentTarget.id;
-    if (!id) return;
-    const [x, y] = id.split(',');
-    if (Number.isNaN(parseInt(x)) || Number.isNaN(parseInt(y))) return;
-    coordClicked(parseInt(x), parseInt(y));
-  }
+  // Setup canvas
+  useEffect(() => {
+    if (!canvasRef.current) {
+      throw Error('Canvas failed to load.');
+    }
+    if (!mapDivRef.current) {
+      throw Error('Map container failed to load.');
+    }
+    const canvas = canvasRef.current;
 
-  // Set up map grid based on prop input
-  const mapArray = [];
-  for (let y = 0; y < map.dimensions.y; y++) {
-    for (let x = 0; x < map.dimensions.x; x++) {
-      let mapClass = 'map-square';
-      mapClass += tile?.x === x && tile?.y === y ? ' selected' : '';
+    // Keep canvas size matching div size.
+    const setCanvasDims = () => {
+      setCanvasProps({
+        width: (mapDivRef.current?.clientWidth || 0),
+        height: (mapDivRef.current?.clientHeight || 0)
+      });
+    }
 
-      const tileData = map.tiles[x]?.[y];
-      let backgroundColor = 'transparent'
+    setCanvasDims();
+    window.addEventListener('resize', setCanvasDims);
+
+    // Setup on click and on hover events
+    canvas.onmousemove = (e) => {
+      // Get the current mouse position
+      const r = canvas.getBoundingClientRect();
+      // Scale the x and y based on scaled canvas width and height.
+      const scaleX = r.width / canvas.width;
+      const scaleY = r.height / canvas.height;
+      // Get relative x and y based on position of the canvas and scale values
+      let x = (e.clientX - r.left) / scaleX, y = (e.clientY - r.top) / scaleY;
+
+      // Snap to the closes grid value based on dimensions
+      x = Math.floor(x / (canvas.width / map.dimensions.x));
+      y = Math.floor(y / (canvas.height / map.dimensions.y));
+
+      setCanvasHover({ x, y });
+    }
+    canvas.onmouseleave = (e) => setCanvasHover(null);
+  }, []);
+
+  // Keep map image up to date
+  useEffect(() => {
+    const backgroundStyles: CSSProperties = {};
+    if (map.image) {
+      backgroundStyles.backgroundImage = `url(${map.image.src})`;
+    } else {
+      backgroundStyles.backgroundColor = 'black';
+      backgroundStyles.opacity = '40%';
+    }
+    setMapStyles(backgroundStyles);
+  }, [map.image]);
+
+  // Draw on the canvas when filter data updates
+  useEffect(() => {
+    if (canvasRef.current) {
+      // Get and clear the current canvas context.
+      const ctx = canvasRef.current.getContext('2d')!;
+      ctx.reset();
+
+      const width = canvasProps.width / map.dimensions.x;
+      const height = canvasProps.height / map.dimensions.y;
+
       if (showHeatmap) {
-        backgroundColor = tileData?.weight !== undefined ?
-        weightToColor(tileData.weight || 0, heatmapGradient)
-        : 'transparent';
+        // Set up heatmap grid based on prop input
+        for (let y = 0; y < map.dimensions.y; y++) {
+          for (let x = 0; x < map.dimensions.x; x++) {
+            const tileData = map.tiles[x]?.[y];
+
+            const canvasX = x * width, canvasY = y * height;
+
+            if (tileData?.weight) {
+              const color = weightToColor(tileData.weight || 0, heatmapGradient);
+
+              ctx.fillStyle = color;
+              ctx.globalAlpha = 0.6;
+              ctx.fillRect(canvasX, canvasY, width, height);
+            }
+          }
+        }
       }
 
-      const styles: CSSProperties = {
-        gridRow: y + 1,
-        gridColumn: x + 1,
-        backgroundColor
-      };
-
-      mapArray.push(
-        <div id={`${x},${y}`}
-          className={mapClass}
-          key={(y * map.dimensions.y) + x}
-          style={styles}
-          onClick={tileClicked}>
-        </div>
-      );
+      ctx.lineWidth = mapScale;
+      if (canvasHover) {
+        ctx.globalAlpha = 1;
+        ctx.setLineDash([2 * mapScale, 1 * mapScale]);
+        ctx.strokeStyle = '#000';
+        ctx.strokeRect(canvasHover.x * width, canvasHover.y * height, width, height);
+      }
+      if (tile) {
+        ctx.globalAlpha = 1;
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#000';
+        ctx.strokeRect(tile.x * width, tile.y * height, width, height);
+      }
     }
-  }
+  }, [canvasProps, canvasHover, map, showHeatmap]);
 
-  usePanzoom(wheelParentDepth);
-
-  const backgroundStyles: {
-    backgroundImage?: string,
-    backgroundColor?: string,
-    opacity?: string
-  } = {};
-  if (map.image) {
-    backgroundStyles.backgroundImage = `url(${map.image.src})`;
-  } else {
-    backgroundStyles.backgroundColor = 'black';
-    backgroundStyles.opacity = '40%';
-  }
+  usePanzoom(wheelParentDepth, mapScale);
 
   return (
     <div className="map-parent">
 
       <div className="map-container">
-        <div id="inner-map" className="map"
+        <div id="inner-map" className="map" ref={mapDivRef}
           style={{
-            ...backgroundStyles,
-            width: '100%',
-            height: 'auto',
+            ...mapStyles,
+            width: `${100 * mapScale}%`,
+            height: `${100 * mapScale}%`,
             backgroundRepeat: 'no-repeat',
             backgroundSize: '100% 100%'
           }}>
-          {mapArray}
+          <canvas ref={canvasRef} width={canvasProps.width} height={canvasProps.height} id='map-canvas' onClick={tileClicked}/>
         </div>
       </div>
       <div className="map-instructions">Scroll/Pinch to zoom. Double click map to filter by tile</div>

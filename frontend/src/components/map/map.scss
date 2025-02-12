@@ -15,24 +15,11 @@
 }
 
 .map {
-  display: grid;
+  aspect-ratio: 1/1;
 }
 
-.map-square {
+#map-canvas {
   cursor: pointer;
-  aspect-ratio: 1 / 1;
-  background-color: unset;
-  opacity: 60%;
-
-  &:hover {
-    margin: -1px;
-    border: 1px dashed black;
-  }
-
-  &.selected {
-    margin: -1px;
-    border: 1px solid black;
-  }
 }
 
 .map-instructions {

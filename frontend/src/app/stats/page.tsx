@@ -2,7 +2,7 @@
 
 import './stats.scss';
 
-import MapComponent from "@/components/map/map";
+import MapComponent, { MapProps } from "@/components/map/map";
 import { MapModel, MapTilesListModel } from "@/components/map/map.model";
 import StatsComponent from '@/components/stats/stats';
 import { fetchBackend } from '@/utils/api.helper';
@@ -157,9 +157,10 @@ export default function StatsPage() {
     }
   }
 
-  const mapComponentProps = {
+  const mapComponentProps: MapProps = {
     map: mapModel,
     wheelParentDepth: 2,
+    mapScale: 4,
     tile: filter?.tile,
     coordClicked: onTileClicked
   };
