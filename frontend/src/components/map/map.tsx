@@ -32,9 +32,10 @@ function usePanzoom(wheelParentDepth: number, mapScale: number) {
 
     const panzoom = Panzoom(innerMap, {
       maxScale: 8 / mapScale,
-      startScale: 1 / mapScale,
       contain: 'outside'
     });
+
+    setTimeout(() => panzoom.zoom(1 / mapScale));
 
     let wheelEventTarget = innerMap;
     for (let i = 0; i < wheelParentDepth; i++) {
