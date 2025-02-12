@@ -85,7 +85,7 @@ export default function StatsPage() {
         fromFaction?: string
       } = { gameId: gameId };
 
-      if (filter?.tile?.x && filter?.tile?.y) {
+      if (filter?.tile !== undefined) {
         params.tileX = filter.tile.x.toString();
         params.tileY = filter.tile.y.toString();
       }
