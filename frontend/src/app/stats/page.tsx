@@ -13,12 +13,7 @@ import Rivers from '../../../public/maps/Rivers.png';
 import { StaticImageData } from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-
-export interface StatsFilter {
-  tile?: { x: number, y: number },
-  playerName?: string,
-  fromFaction?: string
-}
+import FilterComponent, { StatsFilter } from '@/components/filter/filter';
 
 export interface ToFromFaction {
   [fromFaction: string]: {
@@ -35,21 +30,12 @@ export default function StatsPage() {
   const [gameIds, setGameIds] = useState([] as string[]);
   const [gameId, setGameId] = useState(queryParams.get('gameId'));
   const [filter, setFilter] = useState<StatsFilter>({});
-  const [player, setPlayer] = useState('');
   const [totalData, setTotalData] = useState<ToFromFaction>({});
   const [filteredData, setFilteredData] = useState<ToFromFaction>({});
   const [mapImage, setMapImage] = useState<StaticImageData>();
   const [mapTiles, setMapTiles] = useState<MapTilesListModel>({});
 
   const updateFilter = (rule: StatsFilter) => setFilter({ ...filter, ...rule });
-  // Use effect to allow a user to stop typing before the name is searched
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      updateFilter({ playerName: player });
-    }, 1500)
-
-    return () => clearTimeout(delayDebounceFn)
-  }, [player])
 
   useEffect(() => {
     fetchBackend('/websocket/parse', undefined, { method: 'POST' });
@@ -70,7 +56,6 @@ export default function StatsPage() {
     setTotalData({});
     setFilteredData({});
     setMapTiles({});
-    setPlayer('');
 
     if (gameId) {
       setTotalData({});
@@ -176,34 +161,17 @@ export default function StatsPage() {
 
   return (
     <div>
-      <div className='filters'>
-        <div className='game-filter'>
-          <select value={gameId || ''} onChange={(e) => setGameId(e.target.value)}>
-            <option value="" disabled>Select Game</option>
-            {gameIds.map(id => (
-              <option key={id} value={id}>
-                Game {id}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className='player-filter'>
-          <label htmlFor='name-input'>Player Name: </label>
-          <input id='name-input' type='text' value={player} onChange={(e) => setPlayer(e.target.value)} />
-        </div>
-        <div className='faction-filter'>
-            <label htmlFor='faction-select'>Faction: </label>
-            <select id='faction-select'
-              value={filter?.fromFaction || ''}
-              onChange={(e) => updateFilter({ fromFaction: e.target.value})}>
-              <option value=''>None</option>
-              <option value='blue'>Blue</option>
-              <option value='green'>Green</option>
-              <option value='red'>Red</option>
-              <option value='yellow'>Yellow</option>
-            </select>
-        </div>
+      <div className='game-filter'>
+        <select value={gameId || ''} onChange={(e) => setGameId(e.target.value)}>
+          <option value="" disabled>Select Game</option>
+          {gameIds.map(id => (
+            <option key={id} value={id}>
+              Game {id}
+            </option>
+          ))}
+        </select>
       </div>
+      <FilterComponent filter={filter} updateFilter={updateFilter} />
       <div className='map-stats'>
         <div className='map-wrapper'>
           <MapComponent {...mapComponentProps} />

@@ -1,14 +1,16 @@
 @use "../globals.scss" as global;
 
+.game-filter {
+  max-width: fit-content;
+  margin: auto;
+  select {
+    background-color: global.$orange-800;
+  }
+}
+
 .filters {
   display: flex;
   flex-direction: column;
-  .game-filter {
-    margin: auto;
-    select {
-      background-color: global.$orange-800;
-    }
-  }
   .player-filter {
     margin: auto;
     input {
