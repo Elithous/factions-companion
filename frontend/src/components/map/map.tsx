@@ -3,7 +3,7 @@
 import "./map.scss";
 
 import Panzoom from "@panzoom/panzoom";
-import { CSSProperties, MouseEvent, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { MapModel } from "./map.model";
 import { weightToColor } from "@/utils/color.helper";
 import { Button, Icon, Stack } from "@chakra-ui/react";
@@ -118,7 +118,7 @@ export default function MapComponent(props: MapProps) {
 
       setCanvasHover({ x, y });
     }
-    canvas.onmouseleave = (e) => setCanvasHover(null);
+    canvas.onmouseleave = () => setCanvasHover(null);
   }, []);
 
   // Keep map image up to date
