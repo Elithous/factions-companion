@@ -9,8 +9,6 @@
   position: relative;
   z-index: 2;
   border: 2px solid black;
-  aspect-ratio: 1/1;
-  margin: auto;
   max-height: 100%;
 }
 
@@ -29,8 +27,8 @@
 
 .map-settings {
   position: relative;
-  left: 94%;
-  top: -10px;
+  left: 98.5%;
+  width: fit-content;
 }
 
 .settings-popover {

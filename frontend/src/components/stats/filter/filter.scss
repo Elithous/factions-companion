@@ -1,0 +1,15 @@
+@use "../../../app/globals.scss" as global;
+
+.filters-container {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 20px;
+
+  .filter {
+    margin: 5px 0;
+
+    select, input {
+      background-color: global.$orange-800;
+    }
+  }
+}

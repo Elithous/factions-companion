@@ -3,17 +3,20 @@
 import "./map.scss";
 
 import Panzoom from "@panzoom/panzoom";
-import { CSSProperties, useEffect, useRef, useState } from "react";
-import { MapModel } from "./map.model";
+import { useEffect, useRef, useState } from "react";
+import Image from 'next/image';
 import { weightToColor } from "@/utils/color.helper";
-import { Button, Icon, Stack } from "@chakra-ui/react";
-import { PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from "../ui/popover";
 import { RiSettings3Fill } from "react-icons/ri";
-import { Checkbox } from "../ui/checkbox";
+import { MapModel } from "./map.model";
+import { Checkbox, Popover, UnstyledButton } from "@mantine/core";
 
 interface CanvasProps {
   width: number,
   height: number
+}
+
+interface MapSettings {
+  showHeatmap: boolean
 }
 
 export interface MapProps {
@@ -30,12 +33,14 @@ function usePanzoom(wheelParentDepth: number, mapScale: number) {
     const innerMap = document.getElementById('inner-map');
     if (!innerMap) return;
 
-    const panzoom = Panzoom(innerMap, {
+    const panzoomObj = Panzoom(innerMap, {
       maxScale: 8 / mapScale,
-      contain: 'outside'
+      contain: 'inside',
+      canvas: true,
+      roundPixels: false
     });
 
-    setTimeout(() => panzoom.zoom(1 / mapScale));
+    setTimeout(() => panzoomObj.zoom(1 / mapScale));
 
     let wheelEventTarget = innerMap;
     for (let i = 0; i < wheelParentDepth; i++) {
@@ -44,7 +49,7 @@ function usePanzoom(wheelParentDepth: number, mapScale: number) {
         wheelEventTarget = parent;
       }
     }
-    wheelEventTarget?.addEventListener('wheel', panzoom.zoomWithWheel);
+    wheelEventTarget?.addEventListener('wheel', panzoomObj.zoomWithWheel);
   }, []);
 }
 
@@ -58,9 +63,9 @@ const heatmapGradient = [
 export default function MapComponent(props: MapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapDivRef = useRef<HTMLDivElement>(null);
+  const mapImageRef = useRef<HTMLImageElement>(null);
 
-  const [showHeatmap, setShowHeatmap] = useState(true);
-  const [mapStyles, setMapStyles] = useState<CSSProperties>({});
+  const [mapSettings, setMapSettings] = useState<MapSettings>({ showHeatmap: true });
   const [canvasProps, setCanvasProps] = useState<CanvasProps>({ width: 0, height: 0 });
   const [canvasHover, setCanvasHover] = useState<{ x: number, y: number } | null>(null);
 
@@ -71,9 +76,7 @@ export default function MapComponent(props: MapProps) {
   // Capture click events to notify caller which tile is clicked.
   let doubleClick = false;
   const tileClicked = () => {
-    console.log('Clicked');
     if (doubleClick && canvasHover) {
-      console.log(`${canvasHover.x}, ${canvasHover.y}`);
       coordClicked(canvasHover.x, canvasHover.y);
     }
     doubleClick = true;
@@ -104,14 +107,23 @@ export default function MapComponent(props: MapProps) {
     window.addEventListener('resize', setCanvasDims);
 
     // Setup on click and on hover events
-    canvas.onmousemove = (e) => {
+    const updateHover = (e: MouseEvent | TouchEvent) => {
+      let clientX, clientY;
+      if (e instanceof MouseEvent) {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      } else {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
+
       // Get the current mouse position
       const r = canvas.getBoundingClientRect();
       // Scale the x and y based on scaled canvas width and height.
       const scaleX = r.width / canvas.width;
       const scaleY = r.height / canvas.height;
       // Get relative x and y based on position of the canvas and scale values
-      let x = (e.clientX - r.left) / scaleX, y = (e.clientY - r.top) / scaleY;
+      let x = (clientX - r.left) / scaleX, y = (clientY - r.top) / scaleY;
 
       // Snap to the closes grid value based on dimensions
       x = Math.floor(x / (canvas.width / map.dimensions.x));
@@ -119,20 +131,13 @@ export default function MapComponent(props: MapProps) {
 
       setCanvasHover({ x, y });
     }
-    canvas.onmouseleave = () => setCanvasHover(null);
-  }, []);
 
-  // Keep map image up to date
-  useEffect(() => {
-    const backgroundStyles: CSSProperties = {};
-    if (map.image) {
-      backgroundStyles.backgroundImage = `url(${map.image.src})`;
-    } else {
-      backgroundStyles.backgroundColor = 'black';
-      backgroundStyles.opacity = '40%';
-    }
-    setMapStyles(backgroundStyles);
-  }, [map.image]);
+    canvas.onmousemove = updateHover;
+    canvas.ontouchstart = updateHover;
+
+    canvas.onmouseleave = () => setCanvasHover(null);
+
+  }, []);
 
   // Draw on the canvas when filter data updates
   useEffect(() => {
@@ -141,23 +146,27 @@ export default function MapComponent(props: MapProps) {
       const ctx = canvasRef.current.getContext('2d')!;
       ctx.reset();
 
-      const width = canvasProps.width / map.dimensions.x;
-      const height = canvasProps.height / map.dimensions.y;
+      const tileWidth = canvasProps.width / map.dimensions.x;
+      const tileHeight = canvasProps.height / map.dimensions.y;
 
-      if (showHeatmap) {
+      if (map?.image && mapImageRef?.current) {
+        ctx.drawImage(mapImageRef.current, 0, 0, map.image.width, map.image.height, 0, 0, canvasProps.width, canvasProps.height);
+      }
+
+      if (mapSettings.showHeatmap) {
         // Set up heatmap grid based on prop input
         for (let y = 0; y < map.dimensions.y; y++) {
           for (let x = 0; x < map.dimensions.x; x++) {
             const tileData = map.tiles[x]?.[y];
 
-            const canvasX = x * width, canvasY = y * height;
+            const canvasX = x * tileWidth, canvasY = y * tileHeight;
 
             if (tileData?.weight) {
               const color = weightToColor(tileData.weight || 0, heatmapGradient);
 
               ctx.fillStyle = color;
               ctx.globalAlpha = 0.6;
-              ctx.fillRect(canvasX, canvasY, width, height);
+              ctx.fillRect(canvasX, canvasY, tileWidth, tileHeight);
             }
           }
         }
@@ -168,16 +177,16 @@ export default function MapComponent(props: MapProps) {
         ctx.globalAlpha = 1;
         ctx.setLineDash([2 * mapScale, 1 * mapScale]);
         ctx.strokeStyle = '#000';
-        ctx.strokeRect(canvasHover.x * width, canvasHover.y * height, width, height);
+        ctx.strokeRect(canvasHover.x * tileWidth, canvasHover.y * tileHeight, tileWidth, tileHeight);
       }
       if (tile) {
         ctx.globalAlpha = 1;
         ctx.setLineDash([]);
         ctx.strokeStyle = '#000';
-        ctx.strokeRect(tile.x * width, tile.y * height, width, height);
+        ctx.strokeRect(tile.x * tileWidth, tile.y * tileHeight, tileWidth, tileHeight);
       }
     }
-  }, [canvasProps, canvasHover, map, showHeatmap]);
+  }, [canvasProps, canvasHover, map, mapSettings]);
 
   usePanzoom(wheelParentDepth, mapScale);
 
@@ -187,37 +196,30 @@ export default function MapComponent(props: MapProps) {
       <div className="map-container">
         <div id="inner-map" className="map" ref={mapDivRef}
           style={{
-            ...mapStyles,
             width: `${100 * mapScale}%`,
             height: `${100 * mapScale}%`,
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: '100% 100%'
+            backgroundColor: 'rgba(0, 0, 0, .4)'
           }}>
-          <canvas ref={canvasRef} width={canvasProps.width} height={canvasProps.height} id='map-canvas' onClick={tileClicked}/>
+          {map?.image &&
+            <Image ref={mapImageRef} src={map.image} priority alt='' style={{ display: 'none' }} />}
+          <canvas ref={canvasRef} width={canvasProps.width} height={canvasProps.height} id='map-canvas' onClick={tileClicked} onTouchStart={tileClicked} />
         </div>
       </div>
       <div className="map-instructions">Scroll/Pinch to zoom. Double click map to filter by tile</div>
       <div className="map-settings">
-        <PopoverRoot>
-          <PopoverTrigger asChild>
-            <Button size="md" variant="outline">
-              <Icon asChild>
-                <RiSettings3Fill />
-              </Icon>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>
-            <PopoverBody className="settings-popover" outline={"2px solid black"}>
-              <Stack gap="4">
-                <Checkbox variant='subtle'
-                  checked={showHeatmap}
-                  onCheckedChange={(e) => setShowHeatmap(!!e.checked)}>
-                  Show Heatmap
-                </Checkbox>
-              </Stack>
-            </PopoverBody>
-          </PopoverContent>
-        </PopoverRoot>
+        <Popover>
+          <Popover.Target>
+            <UnstyledButton size="md">
+              <RiSettings3Fill />
+            </UnstyledButton>
+          </Popover.Target>
+          <Popover.Dropdown className="settings-popover">
+            <Checkbox
+              checked={mapSettings.showHeatmap}
+              label='Show Heatmap'
+              onChange={(e) => setMapSettings({ ...mapSettings, showHeatmap: e.currentTarget.checked })} />
+          </Popover.Dropdown>
+        </Popover>
       </div>
     </div>
   )

@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     ]
   },
   experimental: {
-    optimizePackageImports: ["@chakra-ui/react"]
+    optimizePackageImports: ['@mantine/core', '@mantine/hooks']
   }
 };
 

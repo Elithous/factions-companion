@@ -13,7 +13,7 @@ import Rivers from '../../../public/maps/Rivers.png';
 import { StaticImageData } from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import FilterComponent, { StatsFilter } from '@/components/filter/filter';
+import FilterComponent, { StatsFilter } from '@/components/stats/filter/filter';
 
 export interface ToFromFaction {
   [fromFaction: string]: {
@@ -29,6 +29,7 @@ export default function StatsPage() {
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [gameIds, setGameIds] = useState([] as string[]);
   const [gameId, setGameId] = useState(queryParams.get('gameId'));
+  const [dateRanges, setDateRanges] = useState<[number, number]>();
   const [filter, setFilter] = useState<StatsFilter>({});
   const [totalData, setTotalData] = useState<ToFromFaction>({});
   const [filteredData, setFilteredData] = useState<ToFromFaction>({});
@@ -49,9 +50,12 @@ export default function StatsPage() {
 
   useEffect(() => {
     // Set query param for load
-    router.replace(`${path}?gameId=${gameId}`);
+    if (gameId) {
+      router.replace(`${path}?gameId=${gameId}`);
+    }
 
     // Reset filters and stats data.
+    setDateRanges(undefined);
     setFilter({});
     setTotalData({});
     setFilteredData({});
@@ -63,6 +67,12 @@ export default function StatsPage() {
         .then((resp) => resp.json())
         .then((data) => {
           setTotalData(data);
+        });
+      
+      fetchBackend('/report/games/timespan', { gameId })
+        .then((resp) => resp.json())
+        .then((data) => {
+          setDateRanges([data[0] * 1000, data[1] * 1000]);
         });
 
       // TODO: Set this based on game config api response
@@ -78,13 +88,20 @@ export default function StatsPage() {
   useEffect(() => {
     if (gameId) {
       const params: {
+        unitType?: string,
         gameId?: string,
         tileX?: string,
         tileY?: string,
         playerName?: string,
-        fromFaction?: string
+        fromFaction?: string,
+        dateStart?: string,
+        dateEnd?: string
       } = { gameId: gameId };
 
+      if (filter?.type) {
+        // TODO: Change filters to make this actually work.
+        params.unitType = filter.type;
+      }
       if (filter?.tile !== undefined) {
         params.tileX = filter.tile.x.toString();
         params.tileY = filter.tile.y.toString();
@@ -94,6 +111,10 @@ export default function StatsPage() {
       }
       if (filter?.fromFaction) {
         params.fromFaction = filter.fromFaction;
+      }
+      if (filter?.dateRange) {
+        params.dateStart = (filter.dateRange[0] / 1000).toString();
+        params.dateEnd = (filter.dateRange[1] / 1000).toString();
       }
 
       setFilteredData({});
@@ -171,11 +192,11 @@ export default function StatsPage() {
           ))}
         </select>
       </div>
-      <FilterComponent filter={filter} updateFilter={updateFilter} />
       <div className='map-stats'>
         <div className='map-wrapper'>
           <MapComponent {...mapComponentProps} />
         </div>
+        <FilterComponent filter={filter} updateFilter={updateFilter} dateRange={dateRanges || [0, 0]} />
         <StatsComponent {...statsProps} />
       </div>
     </div>

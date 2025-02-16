@@ -8,23 +8,6 @@
   }
 }
 
-.filters {
-  display: flex;
-  flex-direction: column;
-  .player-filter {
-    margin: auto;
-    input {
-      background-color: global.$orange-800;
-    }
-  }
-  .faction-filter {
-    margin: auto;
-    select {
-      background-color: global.$orange-800;
-    }
-  }
-}
-
 .map-stats {
   margin: 10px;
   display: flex;
@@ -37,18 +20,26 @@
   align-content: center;
 }
 
-@media (min-aspect-ratio: 1) {
+@media (min-aspect-ratio: 1.2) {
+  .map-stats {
+    flex-wrap: wrap;
+  }
+
   .map-wrapper {
     height: 80vh;
-    width: 50%;
+    flex: 1 0 70%;
+  }
+
+  .filters-container {
+    flex: 1 0 30%;
   }
 
   .stats-container {
-    width: 50%;
+    width: 100%;
   }
 }
 
-@media (max-aspect-ratio: 0.999) {
+@media (max-aspect-ratio: 1.199) {
   .map-stats {
     flex-direction: column;
   }

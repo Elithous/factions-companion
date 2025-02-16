@@ -1,9 +1,12 @@
-import type { Metadata } from "next";
-import localFont from 'next/font/local'
 import "./globals.scss";
-import Navbar from "@/components/navbar/navbar";
-import { Provider } from "@/components/ui/provider"
+import '@mantine/core/styles.css';
+
 import { Suspense } from "react";
+import localFont from 'next/font/local';
+import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+import Navbar from "@/components/navbar/navbar";
+
+import type { Metadata } from "next";
 
 const factionsFont = localFont({ src: './retrogaming.ttf' });
 
@@ -18,18 +21,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        id="mainbody"
-        className={`${factionsFont.className} sans-serif`}
-      >
-        <Provider>
+    <html lang="en" {...mantineHtmlProps}>
+      <head>
+        <ColorSchemeScript />
+      </head>
+      <body id="mainbody"
+        className={`${factionsFont.className} sans-serif`}>
+        <MantineProvider>
           <Suspense>
             {children}
             <Navbar />
           </Suspense>
-        </Provider>
+        </MantineProvider>
       </body>
     </html>
   );

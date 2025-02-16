@@ -2,7 +2,7 @@ import './stats.scss';
 
 import { ToFromFaction } from "@/app/stats/page";
 import StatsTable from './statsTable';
-import { StatsFilter } from '../filter/filter';
+import { StatsFilter } from './filter/filter';
 
 export default function StatsComponent(props: { filter: StatsFilter, data: { total: ToFromFaction, filtered: ToFromFaction} }) {
   const { filter, data } = props;
@@ -17,6 +17,7 @@ export default function StatsComponent(props: { filter: StatsFilter, data: { tot
       {data?.filtered &&
         <div className='filtered-totals'>
           <div className='filters'>
+            { filter.dateRange && <p>{new Date(filter.dateRange[0]).toDateString()} - {new Date(filter.dateRange[1]).toDateString()}</p>}
             { filter.playerName && <p>Player: {filter.playerName}</p>}
             { filter.tile && <p>Tile: {filter.tile.x}, {filter.tile.y}</p>}
           </div>
