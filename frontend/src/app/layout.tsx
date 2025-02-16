@@ -1,5 +1,6 @@
 import "./globals.scss";
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
 
 import { Suspense } from "react";
 import localFont from 'next/font/local';

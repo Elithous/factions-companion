@@ -5,11 +5,15 @@
   flex-direction: column;
   padding: 0px 20px;
 
-  .filter {
+  > .filter {
     margin: 5px 0;
 
-    select, input {
+    > select, input {
       background-color: global.$orange-800;
     }
   }
+}
+
+.mantine-DateTimePicker-calendarHeaderLevel, .mantine-DateTimePicker-calendarHeaderControlIcon {
+  color: black;
 }

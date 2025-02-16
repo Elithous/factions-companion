@@ -83,6 +83,7 @@ export default function FilterComponent(props: StatsProps) {
     <div className='time-filter filter'>
       <Flex className='date-inputs' justify='space-between'>
         <DateTimePicker
+          className='timespan-picker'
           value={dateStart ? new Date(dateStart) : null}
           onChange={(e) => setDateRange([e?.getTime() || dateStart, dateEnd])}
           minDate={new Date(props.dateRange[0])}
@@ -93,6 +94,7 @@ export default function FilterComponent(props: StatsProps) {
           placeholder='Start Date'
           valueFormat="DD MMM YYYY hh:mm A" />
         <DateTimePicker
+          className='timespan-picker'
           value={dateEnd ? new Date(dateEnd) : null}
           onChange={(e) => setDateRange([dateStart, e?.getTime() || dateEnd])}
           minDate={new Date(props.dateRange[0])}
