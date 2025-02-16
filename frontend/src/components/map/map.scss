@@ -9,15 +9,14 @@
   position: relative;
   z-index: 2;
   border: 2px solid black;
+  height: 100%;
   max-height: 100%;
-}
-
-.map {
-  aspect-ratio: 1/1;
+  align-content: center;
 }
 
 #map-canvas {
   cursor: pointer;
+  margin: auto;
 }
 
 .map-instructions {

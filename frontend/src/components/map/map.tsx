@@ -35,7 +35,7 @@ function usePanzoom(wheelParentDepth: number, mapScale: number) {
 
     const panzoomObj = Panzoom(innerMap, {
       maxScale: 8 / mapScale,
-      contain: 'inside',
+      contain: 'outside',
       canvas: true,
       roundPixels: false
     });
@@ -97,9 +97,11 @@ export default function MapComponent(props: MapProps) {
 
     // Keep canvas size matching div size.
     const setCanvasDims = () => {
+      const width = mapDivRef.current?.clientWidth || 0;
+      const height = mapDivRef.current?.clientHeight || 0;
       setCanvasProps({
-        width: (mapDivRef.current?.clientWidth || 0),
-        height: (mapDivRef.current?.clientHeight || 0)
+        width: Math.min(width, height),
+        height: Math.min(width, height)
       });
     }
 
@@ -202,7 +204,11 @@ export default function MapComponent(props: MapProps) {
           }}>
           {map?.image &&
             <Image ref={mapImageRef} src={map.image} priority alt='' style={{ display: 'none' }} />}
-          <canvas ref={canvasRef} width={canvasProps.width} height={canvasProps.height} id='map-canvas' onClick={tileClicked} onTouchStart={tileClicked} />
+          <canvas ref={canvasRef}
+            id='map-canvas'
+            width={canvasProps.width}
+            height={canvasProps.height}
+            onClick={tileClicked} onTouchStart={tileClicked} />
         </div>
       </div>
       <div className="map-instructions">Scroll/Pinch to zoom. Double click map to filter by tile</div>
