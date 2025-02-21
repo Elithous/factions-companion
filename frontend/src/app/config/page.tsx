@@ -8,11 +8,24 @@ import { useEffect, useState } from "react";
 
 const baseCostMulti = 1.5;
 
+interface GameConfig {
+  misc: {
+    parameters: {
+      building_iron_cost_multiplier: number,
+      building_wood_cost_multiplier: number,
+      building_worker_cost_multiplier: number,
+      hq_iron_cost_multiplier: number,
+      hq_wood_cost_multiplier: number,
+      hq_worker_cost_multiplier: number
+    },
+  }
+}
+
 export default function ConfigPage() {
   const queryParams = useSearchParams();
 
   const [gameId, setGameId] = useState(queryParams.get('gameId') || '');
-  const [config, setConfig] = useState<any>();
+  const [config, setConfig] = useState<GameConfig>();
 
   const [paramTable, setParamTable] = useState<TableData>();
 
