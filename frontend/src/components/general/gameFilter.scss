@@ -1,0 +1,9 @@
+@use "../../app/globals.scss" as global;
+
+.game-filter {
+  max-width: fit-content;
+  margin: auto;
+  select {
+    background-color: global.$orange-800;
+  }
+}

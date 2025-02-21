@@ -20,6 +20,7 @@ export default function Navbar() {
       <nav className="nav-items">
         <Link className="nav-item" href='/' onClick={() => setOpen(false)}>Home</Link>
         <Link className="nav-item" href='/stats' onClick={() => setOpen(false)}>Stats</Link>
+        <Link className="nav-item" href='/config' onClick={() => setOpen(false)}>Config</Link>
       </nav>
     </div>
   )

@@ -14,6 +14,7 @@ import { StaticImageData } from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import FilterComponent, { StatsFilter } from '@/components/stats/filter/filter';
+import GameFilter from '@/components/general/gameFilter';
 
 export interface ToFromFaction {
   [fromFaction: string]: {
@@ -27,8 +28,7 @@ export default function StatsPage() {
   const queryParams = useSearchParams();
 
   const [optionsLoading, setOptionsLoading] = useState(true);
-  const [gameIds, setGameIds] = useState([] as string[]);
-  const [gameId, setGameId] = useState(queryParams.get('gameId'));
+  const [gameId, setGameId] = useState(queryParams.get('gameId') || '');
   const [dateRanges, setDateRanges] = useState<[number, number]>();
   const [filter, setFilter] = useState<StatsFilter>({});
   const [totalData, setTotalData] = useState<ToFromFaction>({});
@@ -39,13 +39,10 @@ export default function StatsPage() {
   const updateFilter = (rule: StatsFilter) => setFilter({ ...filter, ...rule });
 
   useEffect(() => {
-    fetchBackend('/websocket/parse', undefined, { method: 'POST' });
-    fetchBackend('/report/games')
-      .then((resp) => resp.json())
-      .then((data) => {
-        setGameIds(data);
-        setOptionsLoading(false);
-      });
+    fetchBackend('/websocket/parse', undefined, { method: 'POST' })
+    .then(() => {
+      setOptionsLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -76,7 +73,7 @@ export default function StatsPage() {
         });
 
       // TODO: Set this based on game config api response
-      if (gameId === '20') {
+      if (gameId === '20' || gameId === '23') {
         setMapImage(Volbadihr);
       }
       else if (gameId === '22') {
@@ -182,16 +179,7 @@ export default function StatsPage() {
 
   return (
     <div>
-      <div className='game-filter'>
-        <select value={gameId || ''} onChange={(e) => setGameId(e.target.value)}>
-          <option value="" disabled>Select Game</option>
-          {gameIds.map(id => (
-            <option key={id} value={id}>
-              Game {id}
-            </option>
-          ))}
-        </select>
-      </div>
+      <GameFilter gameId={gameId} setGameId={setGameId}/>
       <div className='map-stats'>
         <div className='map-wrapper'>
           <MapComponent {...mapComponentProps} />
