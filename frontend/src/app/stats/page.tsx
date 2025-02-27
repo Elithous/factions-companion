@@ -39,7 +39,7 @@ export default function StatsPage() {
   const updateFilter = (rule: StatsFilter) => setFilter({ ...filter, ...rule });
 
   useEffect(() => {
-    fetchBackend('/websocket/parse', undefined, { method: 'POST' })
+    fetchBackend('websocket/parse', undefined, { method: 'POST' })
     .then(() => {
       setOptionsLoading(false);
     });
@@ -60,13 +60,13 @@ export default function StatsPage() {
 
     if (gameId) {
       setTotalData({});
-      fetchBackend('/report/soldiers/faction', { gameId })
+      fetchBackend('report/soldiers/faction', { gameId })
         .then((resp) => resp.json())
         .then((data) => {
           setTotalData(data);
         });
       
-      fetchBackend('/report/games/timespan', { gameId })
+      fetchBackend('report/games/timespan', { gameId })
         .then((resp) => resp.json())
         .then((data) => {
           setDateRanges([data[0] * 1000, data[1] * 1000]);
@@ -115,13 +115,13 @@ export default function StatsPage() {
       }
 
       setFilteredData({});
-      fetchBackend('/report/soldiers/faction', params)
+      fetchBackend('report/soldiers/faction', params)
         .then((resp) => resp.json())
         .then((data) => {
           setFilteredData(data);
         });
 
-      fetchBackend('/report/soldiers/tile', params)
+      fetchBackend('report/soldiers/tile', params)
         .then((resp) => resp.json())
         .then((data) => {
           const maxValue = Object.keys(data).reduce((prev, x) => {

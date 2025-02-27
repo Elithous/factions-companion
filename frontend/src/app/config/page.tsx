@@ -33,7 +33,7 @@ export default function ConfigPage() {
     if (gameId) {
       setConfig(undefined);
 
-      fetchBackend('/report/games/config', { gameId })
+      fetchBackend('report/games/config', { gameId })
         .then((resp) => resp.json())
         .then((data) => {
           setConfig(data);
