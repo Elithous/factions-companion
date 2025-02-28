@@ -3,6 +3,7 @@
 import './calculator.scss';
 import { Button, Flex, Popover, Table } from "@mantine/core";
 import { ReactElement, useEffect, useState } from "react";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import { Building } from '../../utils/game/building.model';
@@ -61,16 +62,29 @@ export default function CalculatorPage() {
       </Popover.Dropdown>
     </Popover>
 
-    <Flex>
+    <Flex gap='xs'>
       <div style={{ flexGrow: '1' }}>
         <p className='title'>Current</p>
         <BuildingsDisplayComponent buildings={currentBuild} setBuildings={setCurrentBuild}
-          hq={currentHq} setHq={setCurrentHq}/>
+          hq={currentHq} setHq={setCurrentHq} />
       </div>
+      <Flex
+        className='controls'
+        style={{ justifyContent: 'center' }}
+        direction={'column'}
+        gap='md'
+      >
+        <Button onClick={() => { setGoalBuild(currentBuild); setGoalHq(currentHq); }}>
+          <FaArrowRight />
+        </Button>
+        <Button onClick={() => { setCurrentBuild(goalBuild); setCurrentHq(goalHq); }}>
+          <FaArrowLeft />
+        </Button>
+      </Flex>
       <div style={{ flexGrow: '1' }}>
         <p className='title'>Goal</p>
         <BuildingsDisplayComponent buildings={goalBuild} setBuildings={setGoalBuild}
-          hq={goalHq} setHq={setGoalHq}/>
+          hq={goalHq} setHq={setGoalHq} />
       </div>
     </Flex>
     <p className='title'>Totals</p>
