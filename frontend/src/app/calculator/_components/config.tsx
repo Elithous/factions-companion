@@ -112,13 +112,13 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
   useEffect(() => {
     setMultiRows(MultiplierValues
       .map(type => {
-        const multis = localConfig.prod_multi?.[type] || defaultConfig.prod_multi[type];
+        const multis = localConfig.prod_multi?.[type] || defaultConfig.prod_multi![type];
         return <Table.Tr key={`${type}-multi`}>
           <Table.Td>{`${type[0].toUpperCase()}${type.substring(1)}`}</Table.Td>
           <Table.Td>
             <NumberInput
               value={multis.percent}
-              onValueChange={(e) => { localConfig.prod_multi[type].percent = e.floatValue || 0; setLocalConfig(localConfig); }}
+              onValueChange={(e) => { localConfig.prod_multi![type].percent = e.floatValue || 0; setLocalConfig(localConfig); }}
               style={{ width: '70px' }}
               decimalScale={1}
               fixedDecimalScale
@@ -128,7 +128,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
           <Table.Td>
             <NumberInput
               value={multis.final}
-              onValueChange={(e) => { localConfig.prod_multi[type].final = e.floatValue || 1; setLocalConfig(localConfig); }}
+              onValueChange={(e) => { localConfig.prod_multi![type].final = e.floatValue || 1; setLocalConfig(localConfig); }}
               style={{ width: '70px' }}
               decimalScale={2}
               fixedDecimalScale

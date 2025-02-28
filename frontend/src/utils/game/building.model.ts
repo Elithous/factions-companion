@@ -5,7 +5,7 @@ export const BuildingData = [
     name: "WOODCUTTER",
     cost: {
       wood: { value: 40, start: 0 },
-      iron: { value: 0, start: -1 },
+      iron: { value: 0, start: 0 },
       worker: { value: 0.5, start: 8 }
     },
     hq: 1,
@@ -22,8 +22,8 @@ export const BuildingData = [
   {
     name: "MINE",
     cost: {
-      wood: { value: 40, start: 0 },
-      iron: { value: 10, start: 1 },
+      wood: { value: 40, start: 1 },
+      iron: { value: 10, start: 2 },
       worker: { value: 0.5, start: 8 }
     },
     hq: 2,
@@ -121,7 +121,7 @@ export const BuildingData = [
     cost: {
       wood: { value: 100, start: 0 },
       iron: { value: 150, start: 0 },
-      worker: { value: 8, start: 3 }
+      worker: { value: 8, start: 4 }
     },
     hq: 4,
     baseEffects: [
@@ -139,7 +139,7 @@ export const BuildingData = [
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 500, start: 0 },
-      worker: { value: 15, start: 3 }
+      worker: { value: 15, start: 4 }
     },
     hq: 5,
     baseEffects: [
@@ -157,7 +157,7 @@ export const BuildingData = [
     cost: {
       wood: { value: 150, start: 0 },
       iron: { value: 100, start: 0 },
-      worker: { value: 10, start: 3 }
+      worker: { value: 10, start: 4 }
     },
     hq: 5,
     baseEffects: [
@@ -175,7 +175,7 @@ export const BuildingData = [
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 400, start: 0 },
-      worker: { value: 8, start: 3 }
+      worker: { value: 8, start: 4 }
     },
     hq: 6,
     baseEffects: [

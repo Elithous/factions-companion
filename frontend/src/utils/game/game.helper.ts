@@ -13,7 +13,7 @@ export interface GameConfig {
     building: { [key in ScalingTypes]: number }
     hq: { [key in ScalingTypes]: number }
   },
-  prod_multi: {
+  prod_multi?: {
     [key in MultiplierTypes]: { final: number, percent: number }
   },
   useCostChange: boolean
@@ -61,7 +61,15 @@ const HqData =   {
   ]
 };
 
-export function getHqCost(hqLevel: number, config: GameConfig | undefined) {
+export function getHqCost(hqLevel: number, config: GameConfig | undefined): { [key in ScalingTypes]: number } {
+  if (hqLevel < 2) {
+    return {
+      wood: 0,
+      iron: 0,
+      worker: 0
+    }
+  }
+
   const costs: Partial<{ [key in ScalingTypes]: number }> = {};
   for (const costType of Object.keys(HqData.cost) as ScalingTypes[]) {
     if (hqLevel < HqData.cost[costType].start) {
