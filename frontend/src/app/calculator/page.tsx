@@ -41,6 +41,7 @@ export default function CalculatorPage() {
         setGoalBuild(parsedBuild.goalBuild);
       }
       catch (e) {
+        console.error('Error caught, clearing storage: ', e)
         localStorage.removeItem('calculator_build');
       }
     }
@@ -51,6 +52,7 @@ export default function CalculatorPage() {
         setConfig(parsedConfig);
       }
       catch (e) {
+        console.error('Error caught, clearing storage: ', e)
         localStorage.removeItem('calculator_config');
       }
     }

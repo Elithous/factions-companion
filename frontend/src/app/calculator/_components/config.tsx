@@ -50,6 +50,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
 
   // Save config before unmounting
   useEffect(() => {
+    console.log('Saved');
     saveConfig();
   }, [localConfig, useCostChange, costChange]);
 
@@ -93,7 +94,10 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
             <NumberInput
               style={{ width: '70px' }}
               value={hqScaling}
-              onValueChange={(e) => { localConfig.cost_multi.hq[type] = e.floatValue || 1; setLocalConfig(localConfig); }}
+              onValueChange={(e) => {
+                localConfig.cost_multi.hq[type] = e.floatValue || 1;
+                setLocalConfig({ ...localConfig });
+              }}
               decimalScale={4}
               fixedDecimalScale
               hideControls
@@ -103,7 +107,10 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
             <NumberInput
               style={{ width: '70px' }}
               value={buildingScaling}
-              onValueChange={(e) => { localConfig.cost_multi.building[type] = e.floatValue || 1; setLocalConfig(localConfig); }}
+              onValueChange={(e) => {
+                localConfig.cost_multi.building[type] = e.floatValue || 1;
+                setLocalConfig({ ...localConfig });
+              }}
               decimalScale={4}
               fixedDecimalScale
               hideControls
@@ -122,7 +129,10 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
           <Table.Td>
             <NumberInput
               value={multis.percent}
-              onValueChange={(e) => { localConfig.prod_multi![type].percent = e.floatValue || 0; setLocalConfig(localConfig); }}
+              onValueChange={(e) => {
+                localConfig.prod_multi![type].percent = e.floatValue || 0;
+                setLocalConfig({ ...localConfig });
+              }}
               style={{ width: '70px' }}
               decimalScale={1}
               fixedDecimalScale
@@ -132,7 +142,10 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
           <Table.Td>
             <NumberInput
               value={multis.final}
-              onValueChange={(e) => { localConfig.prod_multi![type].final = e.floatValue || 1; setLocalConfig(localConfig); }}
+              onValueChange={(e) => {
+                localConfig.prod_multi![type].final = e.floatValue || 1;
+                setLocalConfig({ ...localConfig });
+              }}
               style={{ width: '70px' }}
               decimalScale={2}
               fixedDecimalScale
