@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 
 import Volbadihr from '../../../public/maps/Volbadihr.png';
 import Rivers from '../../../public/maps/Rivers.png';
+import Windmill from '../../../public/maps/Windmill.png';
 import { StaticImageData } from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
@@ -78,6 +79,9 @@ export default function StatsPage() {
       }
       else if (gameId === '22') {
         setMapImage(Rivers);
+      }
+      else if (gameId === '24') {
+        setMapImage(Windmill);
       }
     }
   }, [gameId]);
