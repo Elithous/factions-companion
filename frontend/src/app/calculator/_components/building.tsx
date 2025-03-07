@@ -35,7 +35,9 @@ export default function BuildingsComponent(props: { data: Building, updateData: 
         value={type}
         onChange={v => setType(v as BuildingNameType)}
         data={BuildingNames}
-        comboboxProps={{ styles: { options: { color: 'black' } } }} />
+        comboboxProps={{ styles: { options: { color: 'black' } } }}
+        searchable
+      />
       <NumberInput
         style={{ width: '70px' }}
         label='Count'

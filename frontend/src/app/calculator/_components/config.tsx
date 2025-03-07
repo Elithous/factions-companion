@@ -23,7 +23,7 @@ const defaultConfig: GameConfig = {
 
 export default function CalculatorConfigComponent(props: { config?: GameConfig, setConfig: Dispatch<SetStateAction<GameConfig | undefined>> }) {
   const [gameId, setGameId] = useState('');
-  const [localConfig, setLocalConfig] = useState<GameConfig>(props.config ? {...props.config} : defaultConfig);
+  const [localConfig, setLocalConfig] = useState<GameConfig>(props.config ? { ...props.config } : defaultConfig);
 
   const [useCostChange, setUseCostChange] = useState(props?.config?.useCostChange || false);
   const [costChange, setCostChange] = useState<number>(props?.config?.costChange || 0);
@@ -37,7 +37,6 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
       useCostChange,
       costChange
     };
-
     props.setConfig(updateConfig);
   };
 
@@ -48,6 +47,11 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
     setCostChange(0);
     setUseCostChange(false);
   }
+
+  // Save config before unmounting
+  useEffect(() => {
+    saveConfig();
+  }, [localConfig, useCostChange, costChange]);
 
   useEffect(() => {
     if (gameId) {
@@ -186,7 +190,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
       </Table>
 
       <Flex>
-        <Button onClick={saveConfig}>Save</Button>
+        <Button onClick={saveConfig} hidden>Save</Button>
         <Button variant='default' onClick={resetConfig}>Reset</Button>
       </Flex>
     </div>

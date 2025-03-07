@@ -9,6 +9,13 @@ import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import { Building } from '../../utils/game/building.model';
 import { GameConfig, getBuildOverlap, getTotalCosts, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
 
+interface BuildDataStorage {
+  currentHq: number;
+  currentBuild: Building[];
+  goalHq: number;
+  goalBuild: Building[];
+}
+
 export default function CalculatorPage() {
   const [config, setConfig] = useState<GameConfig>();
   const [currentHq, setCurrentHq] = useState<number>(5);
@@ -18,6 +25,56 @@ export default function CalculatorPage() {
 
   const [costTable, setCostTable] = useState<ReactElement[]>([]);
   const [outputTable, setOutputTable] = useState<ReactElement[]>([]);
+
+  // Load build data from localstorage
+  useEffect(() => {
+    const buildData = localStorage.getItem('calculator_build');
+    const configData = localStorage.getItem('calculator_config');
+
+    if (buildData) {
+      try {
+        const parsedBuild = JSON.parse(buildData) as BuildDataStorage;
+
+        setCurrentHq(parsedBuild.currentHq);
+        setCurrentBuild(parsedBuild.currentBuild);
+        setGoalHq(parsedBuild.goalHq);
+        setGoalBuild(parsedBuild.goalBuild);
+      }
+      catch (e) {
+        localStorage.removeItem('calculator_build');
+      }
+    }
+
+    if (configData) {
+      try {
+        const parsedConfig = JSON.parse(configData) as GameConfig;
+        setConfig(parsedConfig);
+      }
+      catch (e) {
+        localStorage.removeItem('calculator_config');
+      }
+    }
+  }, []);
+
+  // Save build data to localstorage
+  useEffect(() => {
+    if (currentHq && currentBuild && goalHq && goalBuild) {
+      const storageBuild: BuildDataStorage = {
+        currentHq,
+        currentBuild,
+        goalHq,
+        goalBuild
+      };
+
+      localStorage.setItem('calculator_build', JSON.stringify(storageBuild));
+    }
+  }, [currentHq, currentBuild, goalHq, goalBuild]);
+
+  useEffect(() => {
+    if (config) {
+      localStorage.setItem('calculator_config', JSON.stringify(config));
+    }
+  }, [config]);
 
   useEffect(() => {
     const goalCosts = getTotalCosts(goalHq, goalBuild, config);
