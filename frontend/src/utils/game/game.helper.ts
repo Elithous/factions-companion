@@ -37,6 +37,33 @@ export const defaultConfig: GameConfig = {
   costChange: 0
 };
 
+export function isValidConfig(config: GameConfig) {
+  try {
+    const valid =
+      config.cost_multi.building.wood !== undefined &&
+      config.cost_multi.building.iron !== undefined &&
+      config.cost_multi.building.worker !== undefined &&
+      config.cost_multi.hq.wood !== undefined &&
+      config.cost_multi.hq.iron !== undefined &&
+      config.cost_multi.hq.worker !== undefined &&
+      config.prod_multi.wood.percent !== undefined &&
+      config.prod_multi.wood.final !== undefined &&
+      config.prod_multi.iron.percent !== undefined &&
+      config.prod_multi.iron.final !== undefined &&
+      config.prod_multi.workers.percent !== undefined &&
+      config.prod_multi.workers.final !== undefined &&
+      config.prod_multi.soldiers.percent !== undefined &&
+      config.prod_multi.soldiers.final !== undefined &&
+      config.prod_multi.guardian.percent !== undefined &&
+      config.prod_multi.guardian.final !== undefined &&
+      config.prod_multi.knight.percent !== undefined &&
+      config.prod_multi.knight.final !== undefined
+  } catch {
+    return false;
+  }
+  return true;
+}
+
 export function getBuildingCost(type: BuildingNameType, level: number, config: GameConfig | undefined) {
   const data = BuildingData.find(bData => bData.name === type);
 
@@ -62,7 +89,7 @@ export function getBuildingCost(type: BuildingNameType, level: number, config: G
   return costs as { [key in ScalingTypes]: number };
 }
 
-const HqData =   {
+const HqData = {
   name: "HQ",
   cost: {
     wood: { value: 50, start: 0 },
@@ -163,12 +190,12 @@ function sortBuildings(a: Building, b: Building): number {
 export function getBuildOverlap(start: Building[], end: Building[]): Building[] {
   const overlap: Building[] = [];
 
-  const startCopy = start.map(value => ({...value})).sort(sortBuildings);
-  let endCopy = end.map(value => ({...value})).sort(sortBuildings);
+  const startCopy = start.map(value => ({ ...value })).sort(sortBuildings);
+  let endCopy = end.map(value => ({ ...value })).sort(sortBuildings);
   for (let index = 0; index < startCopy.length; index++) {
     const building = startCopy[index];
     if (!building.type || building.count === 0 || building.level === 0) continue; // Don't check undefined/empty buildings.
-  
+
     const match = endCopy.find(value => value.type === building.type);
     if (!match) continue; // No match found, no overlap
 
@@ -218,7 +245,7 @@ export function getTotalModifiers(buildings: Building[]) {
   return totalMods;
 }
 
-export function getTotalOutput(buildings: Building[], config: GameConfig | undefined)  {
+export function getTotalOutput(buildings: Building[], config: GameConfig | undefined) {
   // TODO: Modify multiplier values based on existing buildings?
   const bonuses = getTotalModifiers(buildings);
   const buildingConfig: GameConfig = structuredClone(config ?? defaultConfig);

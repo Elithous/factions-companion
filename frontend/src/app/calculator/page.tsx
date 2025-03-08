@@ -7,7 +7,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import { Building } from '../../utils/game/building.model';
-import { GameConfig, getBuildOverlap, getTotalCosts, getTotalOutput, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
+import { GameConfig, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
 
 interface BuildDataStorage {
   currentHq: number;
@@ -51,7 +51,14 @@ export default function CalculatorPage() {
     if (configData) {
       try {
         const parsedConfig = JSON.parse(configData) as GameConfig;
-        setConfig(parsedConfig);
+
+        // Deep verify config data is set correctly
+        if (!isValidConfig(parsedConfig)) {
+          localStorage.removeItem('calculator_config');
+        }
+        else {
+          setConfig(parsedConfig);
+        }
       }
       catch (e) {
         console.error('Error caught, clearing storage: ', e)
