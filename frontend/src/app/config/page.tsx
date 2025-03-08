@@ -3,7 +3,7 @@
 import GameFilter from "@/components/general/gameFilter";
 import { fetchBackend } from "@/utils/api.helper";
 import { BuildingNames, BuildingNameType } from "@/utils/game/building.model";
-import { GameConfig, getBuildingCost, getHqCost } from "@/utils/game/game.helper";
+import { GameConfig, getBuildingCost, getHqCost, defaultConfig } from "@/utils/game/game.helper";
 import { Flex, NumberInput, Select, Table, TableData } from "@mantine/core";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -114,6 +114,7 @@ export default function ConfigPage() {
           worker: params?.hq_worker_cost_multiplier || 1
         }
       },
+      prod_multi: defaultConfig.prod_multi,
       useCostChange: false,
       costChange: 0
     };

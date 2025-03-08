@@ -4,22 +4,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { fetchBackend } from "@/utils/api.helper";
 import GameFilter from "@/components/general/gameFilter";
 import { Button, Checkbox, Flex, NumberInput, Slider, Table } from "@mantine/core";
-import { GameConfig, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
-
-const defaultConfig: GameConfig = {
-  cost_multi: {
-    building: { wood: 1, iron: 1, worker: 1 },
-    hq: { wood: 1, iron: 1, worker: 1 }
-  },
-  prod_multi: {
-    wood: { final: 1, percent: 0 },
-    iron: { final: 1, percent: 0 },
-    worker: { final: 1, percent: 0 },
-    soldier: { final: 1, percent: 0 }
-  },
-  useCostChange: false,
-  costChange: 0
-};
+import { GameConfig, MultiplierValues, ScalingValues, defaultConfig } from '@/utils/game/game.helper';
 
 export default function CalculatorConfigComponent(props: { config?: GameConfig, setConfig: Dispatch<SetStateAction<GameConfig | undefined>> }) {
   const [gameId, setGameId] = useState('');
@@ -96,7 +81,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
               value={hqScaling}
               onValueChange={(e) => {
                 localConfig.cost_multi.hq[type] = e.floatValue || 1;
-                setLocalConfig({ ...localConfig });
+                setLocalConfig(structuredClone(localConfig));
               }}
               decimalScale={4}
               fixedDecimalScale
@@ -109,7 +94,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
               value={buildingScaling}
               onValueChange={(e) => {
                 localConfig.cost_multi.building[type] = e.floatValue || 1;
-                setLocalConfig({ ...localConfig });
+                setLocalConfig(structuredClone(localConfig));
               }}
               decimalScale={4}
               fixedDecimalScale
@@ -131,7 +116,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
               value={multis.percent}
               onValueChange={(e) => {
                 localConfig.prod_multi![type].percent = e.floatValue || 0;
-                setLocalConfig({ ...localConfig });
+                setLocalConfig(structuredClone(localConfig));
               }}
               style={{ width: '70px' }}
               decimalScale={1}
@@ -144,7 +129,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
               value={multis.final}
               onValueChange={(e) => {
                 localConfig.prod_multi![type].final = e.floatValue || 1;
-                setLocalConfig({ ...localConfig });
+                setLocalConfig(structuredClone(localConfig));
               }}
               style={{ width: '70px' }}
               decimalScale={2}

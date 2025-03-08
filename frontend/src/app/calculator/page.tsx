@@ -7,7 +7,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import { Building } from '../../utils/game/building.model';
-import { GameConfig, getBuildOverlap, getTotalCosts, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
+import { GameConfig, getBuildOverlap, getTotalCosts, getTotalOutput, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
 
 interface BuildDataStorage {
   currentHq: number;
@@ -22,6 +22,8 @@ export default function CalculatorPage() {
   const [currentBuild, setCurrentBuild] = useState<Building[]>([]);
   const [goalHq, setGoalHq] = useState<number>(5);
   const [goalBuild, setGoalBuild] = useState<Building[]>([]);
+
+  const [tickCost, setTickCost] = useState('N/A');
 
   const [costTable, setCostTable] = useState<ReactElement[]>([]);
   const [outputTable, setOutputTable] = useState<ReactElement[]>([]);
@@ -95,21 +97,36 @@ export default function CalculatorPage() {
       ));
     });
     setCostTable(updatedCostTable);
-  }, [goalHq, goalBuild, currentHq, currentBuild, config, config?.costChange, config?.useCostChange]);
+
+    // Calculate tick cost based on total cost and current output
+    const currentOutput = getTotalOutput(currentBuild, config);
+    if (currentOutput.wood.final === 0 || currentOutput.iron.final === 0 || currentOutput.workers.final === 0) {
+      setTickCost('Infinite');
+    }
+    else {
+      const woodTicks = (goalCosts.wood - useableCosts.wood) / currentOutput.wood.final;
+      const ironTicks = (goalCosts.iron - useableCosts.iron) / currentOutput.iron.final;
+      const workersTicks = (goalCosts.worker - useableCosts.worker) / currentOutput.workers.final;
+
+      setTickCost(Math.max(woodTicks, ironTicks, workersTicks).toFixed());
+    }
+  }, [goalHq, goalBuild, currentHq, currentBuild, config]);
 
   useEffect(() => {
+    const goalOutput = getTotalOutput(goalBuild, config);
+
     const updatedOutputTable: ReactElement[] = [];
     MultiplierValues.forEach(value => {
       updatedOutputTable.push((
         <Table.Tr key={value}>
           <Table.Td>{`${value[0].toUpperCase()}${value.substring(1)}`}</Table.Td>
-          <Table.Td>N/A</Table.Td>
-          <Table.Td>N/A</Table.Td>
+          <Table.Td>{goalOutput[value].base.toFixed(2)}</Table.Td>
+          <Table.Td>{goalOutput[value].final.toFixed(2)}</Table.Td>
         </Table.Tr>
       ));
     });
     setOutputTable(updatedOutputTable);
-  }, []);
+  }, [goalBuild, config]);
 
   return <div>
     <Popover>
@@ -160,7 +177,7 @@ export default function CalculatorPage() {
             {costTable}
             <Table.Tr>
               <Table.Td>Ticks:</Table.Td>
-              <Table.Td>N/A</Table.Td>
+              <Table.Td>{tickCost}</Table.Td>
             </Table.Tr>
           </Table.Tbody>
         </Table>

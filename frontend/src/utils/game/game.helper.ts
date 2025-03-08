@@ -5,7 +5,7 @@ const baseCostMulti = 1.5;
 export const ScalingValues = ['wood', 'iron', 'worker'] as const;
 export type ScalingTypes = typeof ScalingValues[number];
 
-export const MultiplierValues = ['wood', 'iron', 'worker', 'soldier'] as const;
+export const MultiplierValues = ['wood', 'iron', 'workers', 'soldiers', 'knight', 'guardian'] as const;
 export type MultiplierTypes = typeof MultiplierValues[number];
 
 export interface GameConfig {
@@ -13,11 +13,28 @@ export interface GameConfig {
     building: { [key in ScalingTypes]: number }
     hq: { [key in ScalingTypes]: number }
   },
-  prod_multi?: {
+  prod_multi: {
     [key in MultiplierTypes]: { final: number, percent: number }
   },
   useCostChange: boolean
   costChange: number
+};
+
+export const defaultConfig: GameConfig = {
+  cost_multi: {
+    building: { wood: 1, iron: 1, worker: 1 },
+    hq: { wood: 1, iron: 1, worker: 1 }
+  },
+  prod_multi: {
+    wood: { final: 1, percent: 0 },
+    iron: { final: 1, percent: 0 },
+    workers: { final: 1, percent: 0 },
+    soldiers: { final: 1, percent: 0 },
+    guardian: { final: 1, percent: 0 },
+    knight: { final: 1, percent: 0 }
+  },
+  useCostChange: false,
+  costChange: 0
 };
 
 export function getBuildingCost(type: BuildingNameType, level: number, config: GameConfig | undefined) {
@@ -173,4 +190,72 @@ export function getBuildOverlap(start: Building[], end: Building[]): Building[] 
     if (building.count > 0) index--;
   }
   return overlap;
+}
+
+export function getTotalModifiers(buildings: Building[]) {
+  const totalMods: { [key in MultiplierTypes]: { bonus: number } } = {
+    wood: { bonus: 0 },
+    iron: { bonus: 0 },
+    workers: { bonus: 0 },
+    soldiers: { bonus: 0 },
+    guardian: { bonus: 0 },
+    knight: { bonus: 0 }
+  };
+
+  buildings.forEach(building => {
+    if (!building.type) return;
+    const buildingData = BuildingData.find(data => data.name === building.type);
+
+    buildingData?.baseEffects.forEach(effect => {
+      if (effect.type === 'production' && 'bonus' in effect) {
+        const bonusEffect = effect.bonus * building.count * building.level;
+
+        totalMods[effect.subtype].bonus += bonusEffect;
+      }
+    });
+  });
+
+  return totalMods;
+}
+
+export function getTotalOutput(buildings: Building[], config: GameConfig | undefined)  {
+  // TODO: Modify multiplier values based on existing buildings?
+  const bonuses = getTotalModifiers(buildings);
+  const buildingConfig: GameConfig = structuredClone(config ?? defaultConfig);
+
+  MultiplierValues.forEach(value => {
+    buildingConfig.prod_multi[value].percent += bonuses[value].bonus;
+  });
+
+  const totalOutput: { [key in MultiplierTypes]: { base: number, final: number } } = {
+    wood: { base: 0, final: 0 },
+    iron: { base: 0, final: 0 },
+    workers: { base: 0, final: 0 },
+    soldiers: { base: 0, final: 0 },
+    guardian: { base: 0, final: 0 },
+    knight: { base: 0, final: 0 }
+  };
+
+  // Add base wood output from HQ first
+  const hqMulti = buildingConfig?.prod_multi?.wood;
+  totalOutput.wood.base += 1;
+  totalOutput.wood.final += (1 + (hqMulti?.percent ?? 0) / 100) * (hqMulti?.final ?? 1);
+
+  buildings.forEach(building => {
+    if (!building.type) return;
+    const buildingData = BuildingData.find(data => data.name === building.type);
+
+    buildingData?.baseEffects.forEach(effect => {
+      if (effect.type === 'production' && 'base' in effect) {
+        const multis = buildingConfig?.prod_multi?.[effect.subtype];
+
+        const baseEffect = effect.base * building.count * building.level;
+        const totalEffect = (baseEffect * (1 + (multis?.percent ?? 0) / 100)) * (multis?.final ?? 1);
+        totalOutput[effect.subtype].base += baseEffect;
+        totalOutput[effect.subtype].final += totalEffect;
+      }
+    });
+  });
+
+  return totalOutput;
 }
