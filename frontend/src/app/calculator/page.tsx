@@ -107,16 +107,12 @@ export default function CalculatorPage() {
 
     // Calculate tick cost based on total cost and current output
     const currentOutput = getTotalOutput(currentBuild, config);
-    if (currentOutput.wood.final === 0 || currentOutput.iron.final === 0 || currentOutput.workers.final === 0) {
-      setTickCost('Infinite');
-    }
-    else {
-      const woodTicks = (goalCosts.wood - useableCosts.wood) / currentOutput.wood.final;
-      const ironTicks = (goalCosts.iron - useableCosts.iron) / currentOutput.iron.final;
-      const workersTicks = (goalCosts.worker - useableCosts.worker) / currentOutput.workers.final;
 
-      setTickCost(Math.max(woodTicks, ironTicks, workersTicks).toFixed());
-    }
+    const woodTicks = ((goalCosts.wood - useableCosts.wood) / currentOutput.wood.final) || 0;
+    const ironTicks = ((goalCosts.iron - useableCosts.iron) / currentOutput.iron.final) || 0;
+    const workersTicks = ((goalCosts.worker - useableCosts.worker) / currentOutput.workers.final) || 0;
+
+    setTickCost(Math.max(woodTicks, ironTicks, workersTicks).toFixed());
   }, [goalHq, goalBuild, currentHq, currentBuild, config]);
 
   useEffect(() => {
