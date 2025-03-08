@@ -57,11 +57,12 @@ export function isValidConfig(config: GameConfig) {
       config.prod_multi.guardian.percent !== undefined &&
       config.prod_multi.guardian.final !== undefined &&
       config.prod_multi.knight.percent !== undefined &&
-      config.prod_multi.knight.final !== undefined
+      config.prod_multi.knight.final !== undefined;
+
+      return valid;
   } catch {
     return false;
   }
-  return true;
 }
 
 export function getBuildingCost(type: BuildingNameType, level: number, config: GameConfig | undefined) {
