@@ -11,7 +11,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
   const [localConfig, setLocalConfig] = useState<GameConfig>(props.config ? { ...props.config } : defaultConfig);
 
   const [useCostChange, setUseCostChange] = useState(props?.config?.useCostChange || false);
-  const [costChange, setCostChange] = useState<number>(props?.config?.costChange || 0);
+  const [costChange, setCostChange] = useState<number>(props?.config?.costChange || 0.92);
 
   const [scaleRows, setScaleRows] = useState<React.JSX.Element[]>();
   const [multiRows, setMultiRows] = useState<React.JSX.Element[]>();
@@ -29,7 +29,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
     setLocalConfig(defaultConfig);
     props.setConfig(defaultConfig);
 
-    setCostChange(0);
+    setCostChange(0.92);
     setUseCostChange(false);
   }
 

@@ -1,13 +1,13 @@
 'use client';
 
 import './calculator.scss';
-import { Button, Flex, Popover, Table } from "@mantine/core";
+import { Button, Flex, Group, HoverCard, NumberInput, Popover, Table, Text } from "@mantine/core";
 import { ReactElement, useEffect, useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import { Building } from '../../utils/game/building.model';
-import { GameConfig, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierValues, ScalingValues } from '@/utils/game/game.helper';
+import { GameConfig, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierValues, ScalingTypes, ScalingValues } from '@/utils/game/game.helper';
 
 interface BuildDataStorage {
   currentHq: number;
@@ -18,15 +18,26 @@ interface BuildDataStorage {
 
 export default function CalculatorPage() {
   const [config, setConfig] = useState<GameConfig>();
+  const [currentResources, setCurrentResources] = useState<{ [res in ScalingTypes]: number }>({
+    wood: 0, iron: 0, worker: 0
+  });
   const [currentHq, setCurrentHq] = useState<number>(5);
   const [currentBuild, setCurrentBuild] = useState<Building[]>([]);
   const [goalHq, setGoalHq] = useState<number>(5);
   const [goalBuild, setGoalBuild] = useState<Building[]>([]);
 
   const [tickCost, setTickCost] = useState('N/A');
+  const [tickBreakdown, setTickBreakdown] = useState<ReactElement | undefined>();
 
   const [costTable, setCostTable] = useState<ReactElement[]>([]);
   const [outputTable, setOutputTable] = useState<ReactElement[]>([]);
+
+  const setCurrentResource = (resource: ScalingTypes, value: number) => {
+    setCurrentResources({
+      ...currentResources,
+      [resource]: value
+    });
+  }
 
   // Load build data from localstorage
   useEffect(() => {
@@ -99,6 +110,14 @@ export default function CalculatorPage() {
       updatedCostTable.push((
         <Table.Tr key={value}>
           <Table.Td>{`${value[0].toUpperCase()}${value.substring(1)}`}:</Table.Td>
+          <Table.Td>
+            <NumberInput
+              style={{ width: '120px', marginLeft: 'auto' }}
+              value={currentResources[value]}
+              onValueChange={(v) => setCurrentResource(value, v.floatValue || 0)}
+              allowNegative={false}
+            />
+          </Table.Td>
           <Table.Td>{cost}</Table.Td>
         </Table.Tr>
       ));
@@ -108,12 +127,17 @@ export default function CalculatorPage() {
     // Calculate tick cost based on total cost and current output
     const currentOutput = getTotalOutput(currentBuild, config);
 
-    const woodTicks = ((goalCosts.wood - useableCosts.wood) / currentOutput.wood.final) || 0;
-    const ironTicks = ((goalCosts.iron - useableCosts.iron) / currentOutput.iron.final) || 0;
-    const workersTicks = ((goalCosts.worker - useableCosts.worker) / currentOutput.workers.final) || 0;
+    const woodTicks = ((goalCosts.wood - useableCosts.wood - currentResources.wood) / currentOutput.wood.final) || 0;
+    const ironTicks = ((goalCosts.iron - useableCosts.iron - currentResources.iron) / currentOutput.iron.final) || 0;
+    const workersTicks = ((goalCosts.worker - useableCosts.worker - currentResources.worker) / currentOutput.workers.final) || 0;
 
-    setTickCost(Math.max(woodTicks, ironTicks, workersTicks).toFixed());
-  }, [goalHq, goalBuild, currentHq, currentBuild, config]);
+    setTickCost(Math.max(woodTicks, ironTicks, workersTicks, 0).toFixed());
+    setTickBreakdown(<div>
+      <Text size='sm'>Wood: {Math.max(woodTicks, 0)}</Text>
+      <Text size='sm'>Iron: {Math.max(ironTicks, 0)}</Text>
+      <Text size='sm'>Workers: {Math.max(workersTicks, 0)}</Text>
+    </div>);
+  }, [goalHq, goalBuild, currentHq, currentBuild, config, currentResources]);
 
   useEffect(() => {
     const goalOutput = getTotalOutput(goalBuild, config);
@@ -174,13 +198,27 @@ export default function CalculatorPage() {
           <Table.Thead>
             <Table.Tr>
               <Table.Td></Table.Td>
+              <Table.Td>Current</Table.Td>
+              <Table.Td>Needed</Table.Td>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {costTable}
             <Table.Tr>
               <Table.Td>Ticks:</Table.Td>
-              <Table.Td>{tickCost}</Table.Td>
+              <Table.Td></Table.Td>
+              <Table.Td>
+                <Group justify="right">
+                  <HoverCard width={280} shadow="md" disabled={!tickBreakdown}>
+                    <HoverCard.Target>
+                      <Text size='sm' style={{ textDecoration: 'underline dotted' }}>{tickCost}</Text>
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown>
+                      {tickBreakdown}
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                </Group>
+              </Table.Td>
             </Table.Tr>
           </Table.Tbody>
         </Table>
