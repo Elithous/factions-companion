@@ -3,25 +3,29 @@
 import './stats.scss';
 
 import MapComponent, { MapProps } from "@/components/map/map";
-import { MapModel, MapTilesListModel } from "@/components/map/map.model";
+import { MapConfig, MapModel, MapTilesListModel } from "@/components/map/map.model";
 import StatsComponent from '@/components/stats/stats';
 import { fetchBackend } from '@/utils/api.helper';
 import { useEffect, useState } from 'react';
 
-import Volbadihr from '../../../public/maps/Volbadihr.png';
-import Rivers from '../../../public/maps/Rivers.png';
-import Windmill from '../../../public/maps/Windmill.png';
 import { StaticImageData } from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import FilterComponent, { StatsFilter } from '@/components/stats/filter/filter';
 import GameFilter from '@/components/general/gameFilter';
 
+import Volbadihr from '../../../public/maps/Volbadihr.png';
+import Rivers from '../../../public/maps/Rivers.png';
+import Windmill from '../../../public/maps/Windmill.png';
+import Smallworld from '../../../public/maps/Windmill.png';
+
 export interface ToFromFaction {
   [fromFaction: string]: {
     [toFaction: string]: number
   }
 }
+
+const mapImageMap: { [mapName: string]: StaticImageData } = { Windmill, Volbadihr, Rivers, Smallworld }
 
 export default function StatsPage() {
   const router = useRouter();
@@ -34,6 +38,7 @@ export default function StatsPage() {
   const [filter, setFilter] = useState<StatsFilter>({});
   const [totalData, setTotalData] = useState<ToFromFaction>({});
   const [filteredData, setFilteredData] = useState<ToFromFaction>({});
+  const [mapConfig, setMapConfig] = useState<MapConfig | undefined>();
   const [mapImage, setMapImage] = useState<StaticImageData>();
   const [mapTiles, setMapTiles] = useState<MapTilesListModel>({});
 
@@ -41,9 +46,9 @@ export default function StatsPage() {
 
   useEffect(() => {
     fetchBackend('websocket/parse', undefined, { method: 'POST' })
-    .then(() => {
-      setOptionsLoading(false);
-    });
+      .then(() => {
+        setOptionsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -66,23 +71,27 @@ export default function StatsPage() {
         .then((data) => {
           setTotalData(data);
         });
-      
+
       fetchBackend('report/games/timespan', { gameId })
         .then((resp) => resp.json())
         .then((data) => {
           setDateRanges([data[0] * 1000, data[1] * 1000]);
         });
 
-      // TODO: Set this based on game config api response
-      if (gameId === '20' || gameId === '23') {
-        setMapImage(Volbadihr);
-      }
-      else if (gameId === '22') {
-        setMapImage(Rivers);
-      }
-      else if (gameId === '24') {
-        setMapImage(Windmill);
-      }
+
+      fetchBackend('report/games/config', { gameId })
+        .then((resp) => resp.json())
+        .then((data) => {
+          const mapConfig: MapConfig = data.mapConfig;
+          if (mapConfig) {
+            setMapConfig(mapConfig);
+
+            const mapImage = mapImageMap[mapConfig.name];
+            if (mapImage) {
+              setMapImage(mapImage);
+            }
+          }
+        });
     }
   }, [gameId]);
 
@@ -150,7 +159,7 @@ export default function StatsPage() {
   }, [filter]);
 
   const mapModel: MapModel = {
-    dimensions: { x: 50, y: 50 },
+    dimensions: { x: mapConfig?.width || 50, y: mapConfig?.height || 50 },
     image: mapImage,
     tiles: mapTiles
   };
@@ -183,7 +192,7 @@ export default function StatsPage() {
 
   return (
     <div>
-      <GameFilter gameId={gameId} setGameId={setGameId}/>
+      <GameFilter gameId={gameId} setGameId={setGameId} />
       <div className='map-stats'>
         <div className='map-wrapper'>
           <MapComponent {...mapComponentProps} />
