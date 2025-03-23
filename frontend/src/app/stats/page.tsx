@@ -17,7 +17,7 @@ import GameFilter from '@/components/general/gameFilter';
 import Volbadihr from '../../../public/maps/Volbadihr.png';
 import Rivers from '../../../public/maps/Rivers.png';
 import Windmill from '../../../public/maps/Windmill.png';
-import Smallworld from '../../../public/maps/Windmill.png';
+import Smallworld from '../../../public/maps/Smallworld.png';
 
 export interface ToFromFaction {
   [fromFaction: string]: {
@@ -86,7 +86,9 @@ export default function StatsPage() {
           if (mapConfig) {
             setMapConfig(mapConfig);
 
+            console.log(mapConfig);
             const mapImage = mapImageMap[mapConfig.name];
+            console.log(mapImageMap);
             if (mapImage) {
               setMapImage(mapImage);
             }
