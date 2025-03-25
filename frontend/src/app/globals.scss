@@ -33,3 +33,39 @@ body {
   color: $foreground;
   background: $background;
 }
+
+/* Add background color to root elements */
+:root {
+  --background-color: #8D6A3F;
+}
+
+html, 
+body {
+  background-color: var(--background-color);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Make sure Mantine components inherit the background color */
+.mantine-Paper-root, 
+.mantine-Modal-content, 
+.mantine-Popover-dropdown,
+.mantine-Menu-dropdown,
+.mantine-AppShell-main,
+.mantine-Card-root {
+  background-color: var(--background-color) !important;
+}
+
+/* Ensure text remains readable on brown background */
+.mantine-Text-root {
+  color: $foreground; /* Change to appropriate color for readability */
+}
+
+/* Allow specific components to override if needed */
+[data-bg-override="true"] {
+  background-color: initial !important;
+}

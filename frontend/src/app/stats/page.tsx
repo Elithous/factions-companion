@@ -161,7 +161,7 @@ export default function StatsPage() {
   }, [filter]);
 
   const mapModel: MapModel = {
-    dimensions: { x: mapConfig?.width || 50, y: mapConfig?.height || 50 },
+    dimensions: { width: mapConfig?.width || 50, height: mapConfig?.height || 50 },
     image: mapImage,
     tiles: mapTiles
   };

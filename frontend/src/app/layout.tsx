@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import localFont from 'next/font/local';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
 import Navbar from "@/components/navbar/navbar";
+import { mantineTheme } from "@/theme/mantine-theme";
 
 import type { Metadata } from "next";
 
@@ -27,8 +28,9 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body id="mainbody"
-        className={`${factionsFont.className} sans-serif`}>
-        <MantineProvider>
+        className={`${factionsFont.className} sans-serif`}
+        style={{ backgroundColor: '#8D6A3F' }}>
+        <MantineProvider theme={mantineTheme}>
           <Suspense>
             {children}
             <Navbar />
