@@ -1,4 +1,4 @@
-import { createTheme, HoverCard, MantineColorsTuple } from '@mantine/core';
+import { createTheme, MantineColorsTuple } from '@mantine/core';
 
 // Define a brown color palette based on #8D6A3F
 const brownPrimary: MantineColorsTuple = [
