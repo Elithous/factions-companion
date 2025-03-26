@@ -3,27 +3,36 @@
 
 @use "../../app/globals.scss" as global;
 
-$toggleSize: 30px;
-$toggleMargin: 12px;
-$toggleLine: 3px;
-$toggleColor: global.$orange-900;
-
-#mainbody {
-  margin-top: $toggleSize + ($toggleMargin * 2);
+// Variables
+:root {
+  --toggle-size: 30px;
+  --toggle-margin: 12px;
+  --toggle-line: 3px;
+  --nav-height: calc(var(--toggle-size) + (var(--toggle-margin) * 2));
+  --nav-item-min-width: 300px;
+  --nav-z-index: 999;
 }
 
+// Main Layout
+#mainbody {
+  margin-top: var(--nav-height);
+}
+
+// Navigation Container
 .nav-container {
-  z-index: 999;
-  background-color: global.$orange-500;
-  top: 0;
+  z-index: var(--nav-z-index);
+  background-color: var(--orange-500);
   position: fixed;
   display: inline-block;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  max-height: $toggleSize + ($toggleMargin * 2);
+  max-height: var(--nav-height);
   overflow: visible;
   outline: none;
 
-  //&:focus-within, &:focus {
+  // Active State
   &.is-active {
     .nav-toggle {
 
@@ -45,88 +54,102 @@ $toggleColor: global.$orange-900;
       transform: translate(0, 0);
     }
   }
+}
 
-  .nav-toggle {
-    $offset: $toggleSize * 0.5;
+// Toggle Button
+.nav-toggle {
+  position: relative;
+  width: var(--toggle-size);
+  min-width: var(--toggle-size);
+  height: var(--toggle-size);
+  margin: var(--toggle-margin);
+  z-index: 2;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
 
-    position: relative;
-    width: $toggleSize;
-    min-width: $toggleSize;
-    height: $toggleSize;
-    margin: $toggleMargin;
-    z-index: 2;
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    top: calc(50% - var(--toggle-line) / 2);
+    left: 0;
+    width: 100%;
+    height: var(--toggle-line);
+    background: var(--orange-900);
+    transition: all var(--transition-normal) ease;
+  }
+
+  &:before {
+    box-shadow: 0 calc(var(--toggle-size) / 3) var(--orange-900);
+  }
+
+  &:after {
+    box-shadow: 0 calc(var(--toggle-size) / -3) var(--orange-900);
+  }
+}
+
+// Navigation Bar
+.nav-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .nav-title {
+    padding-left: var(--spacing-sm);
+    font-size: 2.25rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--orange-100);
+
+    a {
+      text-decoration: underline;
+      color: inherit;
+      position: relative;
+    }
+  }
+}
+
+// Navigation Items
+.nav-items {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: var(--nav-item-min-width);
+  max-width: 50vw;
+  width: 30vw;
+  height: 100vh;
+  z-index: 1;
+  margin-top: var(--nav-height);
+  padding: var(--spacing-md);
+  transform: translateX(-100%);
+  transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--orange-500);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-sm);
+  align-content: start;
+  backdrop-filter: blur(4px);
+
+  .nav-item {
+    border: 1px solid var(--orange-900);
+    background: var(--orange-800);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast) ease;
 
     &:hover {
       cursor: pointer;
+      background: var(--orange-900);
+      transform: translateX(var(--spacing-xs));
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    &:before, &:after {
-      content: "";
-      position: absolute;
-      top: #{$offset - math.div($toggleLine, 2)};
-      left: 0;
-      transform: translate(0, 0);
-      width: 100%;
-      height: $toggleLine;
-      background: $toggleColor;
-      transition: transform .3s ease, box-shadow .3s ease;
-    }
-
-    &:before {
-      box-shadow: 0 #{math.div($offset, 1.5)} $toggleColor;
-    }
-
-    &:after {
-      box-shadow: 0 #{math.div(-$offset, 1.5)} $toggleColor;
-    }
-  }
-
-  .nav-bar {
-    display: flex;
-    flex-direction: row;
-
-    .nav-title {
-      padding-left: 10px;
-      font-size: 36px;
-      font-weight: bold;
-      align-self: center;
-      text-wrap-mode: nowrap;
-      a {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .nav-items {
-    position: absolute;
-    top: 0;
-    left: 0;
-    min-width: 300px;
-    max-width: 50vw;
-    width: 30vw;
-    height: 100vh;
-    z-index: 1;
-    margin-top: $toggleSize + ($toggleMargin * 2);
-    padding: 10px 20px 20px 10px;
-    transition: transform .3s ease;
-    transform: translate(calc(-100% - 50px), 0);
-    background: global.$orange-500;
-    display: grid;
-    grid-template-columns: 1fr;
-    // grid-gap: 5px 0;
-    align-content: start;
-    box-shadow: 0 50px 50px rgba(0, 0, 0, 0.3);
-
-    .nav-item {
-      border: 1px solid global.$orange-900;
-      background: global.$orange-800;
-      padding: 10px;
-      transition: background-color .3s ease;
-
-      &:hover {
-        cursor: pointer;
-        background: color.adjust(global.$orange-800, $lightness: -10%);
-      }
+    &:active {
+      transform: translateX(0);
     }
   }
 }

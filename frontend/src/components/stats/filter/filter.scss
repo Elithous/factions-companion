@@ -1,19 +1,77 @@
 @use "../../../app/globals.scss" as global;
 
+// Filter Container
 .filters-container {
   display: flex;
   flex-direction: column;
-  padding: 0px 20px;
+  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
 
-  > .filter {
-    margin: 5px 0;
+  .filter {
+    margin: var(--spacing-xs) 0;
 
-    > select, input {
-      background-color: global.$orange-800;
+    select,
+    input {
+      width: 100%;
+      padding: var(--spacing-sm);
+      background-color: var(--orange-800);
+      color: var(--text-color);
+      border: 1px solid var(--orange-900);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background-color: var(--orange-700);
+        border-color: var(--orange-600);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--orange-500);
+        box-shadow: 0 0 0 2px rgba(var(--orange-500), 0.2);
+      }
+
+      option {
+        background-color: var(--orange-800);
+        color: var(--text-color);
+      }
     }
   }
 }
 
-.mantine-DateTimePicker-calendarHeaderLevel, .mantine-DateTimePicker-calendarHeaderControlIcon {
-  color: black;
+// Date Time Picker Overrides
+.mantine-DateTimePicker-root {
+
+  .mantine-DateTimePicker-calendarHeaderLevel,
+  .mantine-DateTimePicker-calendarHeaderControlIcon {
+    color: var(--text-color);
+  }
+
+  .mantine-DateTimePicker-day {
+    color: var(--text-color);
+    background-color: var(--orange-800);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--orange-700);
+    }
+
+    &[data-selected] {
+      background-color: var(--orange-600);
+      font-weight: 600;
+    }
+  }
+
+  .mantine-DateTimePicker-timeInput {
+    background-color: var(--orange-800);
+    color: var(--text-color);
+    border-color: var(--orange-900);
+
+    &:focus {
+      border-color: var(--orange-600);
+    }
+  }
 }

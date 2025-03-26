@@ -106,7 +106,6 @@ export default function FilterComponent(props: StatsProps) {
           valueFormat="DD MMM YYYY hh:mm A" />
       </Flex>
       <RangeSlider
-        color='blue'
         onChange={(e) => {setDateStart(e[0]); setDateEnd(e[1]) }}
         onChangeEnd={setDateRange}
         value={[dateStart, dateEnd]}

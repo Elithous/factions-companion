@@ -366,54 +366,53 @@ export default function MapComponent({
             aria-label="Interactive game map"
           />
         </div>
+        <div className="map-settings">
+          <Popover width={200} position="bottom-end" shadow="md">
+            <Popover.Target>
+              <Tooltip label="Map Settings">
+                <UnstyledButton aria-label="Map settings">
+                  <RiSettings3Fill size={20} />
+                </UnstyledButton>
+              </Tooltip>
+            </Popover.Target>
+
+            <Popover.Dropdown>
+              <Stack gap="xs">
+                <Checkbox
+                  checked={mapSettings.showHeatmap}
+                  label='Show Heatmap'
+                  onChange={(e) => setMapSettings({
+                    ...mapSettings,
+                    showHeatmap: e.currentTarget.checked
+                  })}
+                />
+
+                <Checkbox
+                  checked={mapSettings.showGrid}
+                  label='Show Grid'
+                  onChange={(e) => setMapSettings({
+                    ...mapSettings,
+                    showGrid: e.currentTarget.checked
+                  })}
+                />
+
+                <Group justify="center" mt="xs">
+                  <UnstyledButton
+                    onClick={() => panzoomRef.current?.zoom(1 / mapScale, { animate: true })}
+                    className="reset-button"
+                  >
+                    Reset View
+                  </UnstyledButton>
+                </Group>
+              </Stack>
+            </Popover.Dropdown>
+          </Popover>
+        </div>
       </div>
 
       <Text className="map-instructions" size="sm" color="dimmed">
         {isMobile ? 'Pinch to zoom. Double tap to select tile' : 'Scroll to zoom. Double click to select tile'}
       </Text>
-
-      <div className="map-settings">
-        <Popover width={200} position="bottom-end" shadow="md">
-          <Popover.Target>
-            <Tooltip label="Map Settings">
-              <UnstyledButton aria-label="Map settings">
-                <RiSettings3Fill size={20} />
-              </UnstyledButton>
-            </Tooltip>
-          </Popover.Target>
-
-          <Popover.Dropdown>
-            <Stack gap="xs">
-              <Checkbox
-                checked={mapSettings.showHeatmap}
-                label='Show Heatmap'
-                onChange={(e) => setMapSettings({
-                  ...mapSettings,
-                  showHeatmap: e.currentTarget.checked
-                })}
-              />
-
-              <Checkbox
-                checked={mapSettings.showGrid}
-                label='Show Grid'
-                onChange={(e) => setMapSettings({
-                  ...mapSettings,
-                  showGrid: e.currentTarget.checked
-                })}
-              />
-
-              <Group justify="center" mt="xs">
-                <UnstyledButton
-                  onClick={() => panzoomRef.current?.zoom(1 / mapScale, { animate: true })}
-                  className="reset-button"
-                >
-                  Reset View
-                </UnstyledButton>
-              </Group>
-            </Stack>
-          </Popover.Dropdown>
-        </Popover>
-      </div>
     </div>
   );
 }

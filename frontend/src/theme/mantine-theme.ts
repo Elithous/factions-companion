@@ -1,4 +1,4 @@
-import { createTheme, MantineColorsTuple } from '@mantine/core';
+import { createTheme, HoverCard, MantineColorsTuple } from '@mantine/core';
 
 // Define a brown color palette based on #8D6A3F
 const brownPrimary: MantineColorsTuple = [
@@ -37,5 +37,20 @@ export const mantineTheme = createTheme({
         bg: '#8D6A3F',
       },
     },
+    Button: {
+      defaultProps: {
+        color: 'blue'
+      },
+    },
+    Slider: {
+      defaultProps: {
+        color: 'blue'
+      },
+    },
+    Checkbox: {
+      defaultProps: {
+        color: 'blue'
+      }
+    }
   },
 }); 

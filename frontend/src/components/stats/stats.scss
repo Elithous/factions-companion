@@ -1,96 +1,115 @@
 @use "sass:color";
 @use '../../app/globals.scss' as global;
 
+// Variables
+:root {
+  --stats-padding: var(--spacing-sm);
+  --stats-border-width: 2px;
+  --stats-hover-opacity: 0.1;
+  --stats-cell-padding: var(--spacing-xs) var(--spacing-sm);
+  --stats-transition: var(--transition-normal);
+}
+
+// Container Layout
 .stats-container {
   display: flex;
   flex-wrap: wrap;
   text-align: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
 }
 
-.faction-totals, .filtered-totals {
-  padding: 0px 20px;
+// Totals Sections
+.faction-totals,
+.filtered-totals {
+  padding: var(--stats-padding);
   margin: auto;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform var(--stats-transition), box-shadow var(--stats-transition);
 }
 
-.filtered-totals > .filters {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
+.filtered-totals {
+  .filters {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
 }
 
+// Stats Table
 .stats-table {
   margin: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
 
-  > .title {
+  .title {
     text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: var(--spacing-md);
+    color: var(--text-color);
   }
 
-  > tbody {
-    border: 2px solid black;
+  tbody {
+    border: var(--stats-border-width) solid var(--orange-900);
   }
 }
 
+// Stats Row
 .stats-row {
+  transition: background-color var(--stats-transition);
+
   &:hover {
-    background-color: rgba(black, 0.1);
+    background-color: rgba(0, 0, 0, var(--stats-hover-opacity));
+    .total {
+      background-color: var(--orange-800);
+    }
 
-    .faction, .fill {
-      &.BLUE {
-        background-color: color.adjust(global.$faction-blue, $lightness: -5%);
-      }
-  
-      &.RED {
-        background-color: color.adjust(global.$faction-red, $lightness: -5%);
-      }
-  
-      &.GREEN {
-        background-color: color.adjust(global.$faction-green, $lightness: -5%);
-      }
-  
-      &.YELLOW {
-        background-color: color.adjust(global.$faction-yellow, $lightness: -5%);
-      }
-  
-      &.NEUTRAL {
-        background-color: color.adjust(global.$faction-neutral, $lightness: -5%);
-      }
+    .faction,
+    .fill {
+      &.BLUE { background-color: color.adjust(global.$faction-blue, $lightness: -5%); }
+      &.RED { background-color: color.adjust(global.$faction-red, $lightness: -5%); }
+      &.GREEN { background-color: color.adjust(global.$faction-green, $lightness: -5%); }
+      &.YELLOW { background-color: color.adjust(global.$faction-yellow, $lightness: -5%); }
+      &.NEUTRAL { background-color: color.adjust(global.$faction-neutral, $lightness: -10%); }
     }
   }
 
-  > .faction, .fill {
-    &.BLUE {
-      background-color: global.$faction-blue;
+  // Faction Colors
+  .faction,
+  .fill {
+    @mixin faction-color($color) {
+      background-color: $color;
+      transition: background-color var(--stats-transition);
     }
 
-    &.RED {
-      background-color: global.$faction-red;
-    }
-
-    &.GREEN {
-      background-color: global.$faction-green;
-    }
-
-    &.YELLOW {
-      background-color: global.$faction-yellow;
-    }
-
-    &.NEUTRAL {
-      background-color: global.$faction-neutral;
-    }
+    &.BLUE { @include faction-color(global.$faction-blue); }
+    &.RED { @include faction-color(global.$faction-red); }
+    &.GREEN { @include faction-color(global.$faction-green); }
+    &.YELLOW { @include faction-color(global.$faction-yellow); }
+    &.NEUTRAL { @include faction-color(global.$faction-neutral); }
   }
 
-  > .total {
-    padding: 0px 10px;
+  // Total Column
+  .total {
+    padding: var(--stats-cell-padding);
     position: relative;
-    background-color: global.$orange-700;
+    background-color: var(--orange-700);
+    transition: background-color var(--stats-transition);
 
-    > .value {
+    .value {
       text-align: right;
       z-index: 1;
       position: relative;
+      font-weight: 500;
     }
 
-    > .fill {
+    .fill {
       top: 0;
       left: 0;
       height: 100%;
@@ -98,8 +117,27 @@
     }
   }
 
-  > .faction {
+  // Faction Column
+  .faction {
     text-align: center;
-    padding: 2px 10px;
+    padding: var(--stats-cell-padding);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .stats-container {
+    flex-direction: column;
+  }
+
+  .stats-table {
+    font-size: 0.9rem;
+  }
+
+  .faction-totals,
+  .filtered-totals {
+    width: 100%;
   }
 }
