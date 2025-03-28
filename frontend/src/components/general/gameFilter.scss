@@ -1,58 +1,101 @@
 @use "../../app/globals.scss" as global;
 
+// CSS Custom Properties
+:root {
+  --game-filter-padding: var(--spacing-md);
+  --game-filter-radius: var(--radius-md);
+  --game-filter-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --game-filter-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --game-filter-bg: rgba(0, 0, 0, 0.05);
+  --game-filter-hover-bg: rgba(0, 0, 0, 0.08);
+  --game-filter-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Game Filter Container
 .game-filter {
-  max-width: fit-content;
-  margin: auto;
-  padding: var(--spacing-sm);
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all var(--transition-normal);
-  
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: var(--game-filter-bg);
+  border-radius: var(--game-filter-radius);
+  box-shadow: var(--game-filter-shadow);
+  transition: var(--game-filter-transition);
+
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: var(--game-filter-hover-bg);
+    box-shadow: var(--game-filter-hover-shadow);
   }
-  
-  select {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+
+  &.error {
+    background-color: rgba(255, 0, 0, 0.05);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+  }
+}
+
+// Mantine Select Overrides
+.game-select {
+  .mantine-Select-input {
     background-color: var(--orange-800);
     color: var(--text-color);
-    border: 1px solid var(--orange-900);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    
+    border-color: var(--orange-900);
+    transition: var(--game-filter-transition);
+
     &:hover {
       background-color: var(--orange-700);
       border-color: var(--orange-600);
     }
-    
+
     &:focus {
-      outline: none;
       border-color: var(--orange-500);
       box-shadow: 0 0 0 2px rgba(var(--orange-500), 0.2);
     }
-    
-    option {
-      background-color: var(--orange-800);
-      color: var(--text-color);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      
-      &:hover {
-        background-color: var(--orange-700);
-      }
+
+    &[data-disabled] {
+      background-color: var(--orange-900);
+      opacity: 0.7;
     }
   }
-  
-  // Responsive Design
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: none;
-    
-    select {
-      font-size: 0.9rem;
+
+  .mantine-Select-dropdown {
+    background-color: var(--orange-800);
+    border: 1px solid var(--orange-900);
+    box-shadow: var(--game-filter-shadow);
+  }
+
+  .mantine-Select-item {
+    color: var(--text-color);
+    transition: var(--game-filter-transition);
+
+    &:hover {
+      background-color: var(--orange-700);
     }
+
+    &[data-selected] {
+      background-color: var(--orange-600);
+      color: var(--text-color);
+    }
+  }
+
+  .mantine-Select-separator {
+    border-color: var(--orange-900);
+  }
+
+  .mantine-Select-searchInput {
+    background-color: var(--orange-800);
+    color: var(--text-color);
+    border-color: var(--orange-900);
+
+    &:focus {
+      border-color: var(--orange-500);
+      box-shadow: 0 0 0 2px rgba(var(--orange-500), 0.2);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .game-filter {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
 }
