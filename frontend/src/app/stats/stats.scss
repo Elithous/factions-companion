@@ -1,5 +1,20 @@
 @use "../globals.scss" as global;
 
+:root {
+  --stats-spacing: 1.25rem;
+  --stats-gap: 1.25rem;
+  --map-height-desktop: 80vh;
+  --map-height-mobile: 50vh;
+  --map-width-desktop: 50%;
+  --map-width-mobile: 100%;
+  --map-flex-desktop: 70%;
+  --filters-flex-desktop: 30%;
+  --border-radius: 0.5rem;
+  --transition-speed: 0.2s;
+  --overlay-background: rgba(0, 0, 0, 0.5);
+  --overlay-z-index: 1000;
+}
+
 .game-filter {
   max-width: fit-content;
   margin: auto;
@@ -9,15 +24,101 @@
 }
 
 .map-stats {
-  margin: 10px;
+  margin: var(--stats-spacing);
   display: flex;
-  row-gap: 20px;
+  gap: var(--stats-gap);
+  flex-wrap: wrap;
+  align-items: flex-start;
+  transition: gap var(--transition-speed) ease;
+  position: relative;
+
+  @media (min-width: 1200px) {
+    flex-wrap: nowrap;
+  }
 }
 
 .map-wrapper {
-  height: 80vh;
-  width: 50%;
-  align-content: center;
+  height: var(--map-height-mobile);
+  width: var(--map-width-mobile);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background-color: var(--orange-900);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-speed) ease;
+
+  @media (min-width: 1200px) {
+    height: var(--map-height-desktop);
+    width: var(--map-width-desktop);
+    flex: 1 0 var(--map-flex-desktop);
+  }
+
+  &:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.filters-container {
+  flex: 1 0 100%;
+  background-color: var(--orange-800);
+  border-radius: var(--border-radius);
+  padding: var(--stats-spacing);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-speed) ease;
+
+  @media (min-width: 1200px) {
+    flex: 1 0 var(--filters-flex-desktop);
+  }
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.stats-container {
+  flex: 1 0 100%;
+  background-color: var(--orange-800);
+  border-radius: var(--border-radius);
+  padding: var(--stats-spacing);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-speed) ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Loading overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--overlay-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--overlay-z-index);
+  backdrop-filter: blur(2px);
+  transition: opacity var(--transition-speed) ease;
+}
+
+// Loading and error states
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background-color: var(--orange-900);
+  border-radius: var(--border-radius);
+}
+
+.error-container {
+  background-color: var(--red-900);
+  border-radius: var(--border-radius);
+  padding: var(--stats-spacing);
+  margin: var(--stats-spacing);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @media (min-aspect-ratio: 1.2) {
