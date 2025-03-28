@@ -1,83 +1,141 @@
 @use "sass:color";
 @use '../../app/globals.scss' as global;
 
-// Variables
+// CSS Custom Properties
 :root {
-  --stats-padding: var(--spacing-sm);
+  --stats-padding: var(--spacing-md);
+  --stats-gap: var(--spacing-lg);
+  --stats-radius: var(--radius-md);
   --stats-border-width: 2px;
   --stats-hover-opacity: 0.1;
   --stats-cell-padding: var(--spacing-xs) var(--spacing-sm);
-  --stats-transition: var(--transition-normal);
+  --stats-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --stats-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --stats-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --stats-bg: rgba(0, 0, 0, 0.05);
+  --stats-hover-bg: rgba(0, 0, 0, 0.08);
+  --stats-min-width: 400px;
 }
 
 // Container Layout
 .stats-container {
-  display: flex;
-  flex-wrap: wrap;
-  text-align: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-md);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--stats-min-width), 1fr));
+  gap: var(--stats-gap);
+  padding: var(--stats-padding);
+  width: 100%;
+  align-items: start;
+
+  // When only one section is visible, center it
+  &:has(.faction-totals:only-child),
+  &:has(.filtered-totals:only-child) {
+    grid-template-columns: minmax(var(--stats-min-width), 800px);
+    justify-content: center;
+  }
 }
 
-// Totals Sections
+// Stats Sections
 .faction-totals,
 .filtered-totals {
-  padding: var(--stats-padding);
-  margin: auto;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform var(--stats-transition), box-shadow var(--stats-transition);
-}
+  background-color: var(--stats-bg);
+  border-radius: var(--stats-radius);
+  box-shadow: var(--stats-shadow);
+  transition: var(--stats-transition);
+  overflow: hidden;
+  height: 100%;
 
-.filtered-totals {
-  .filters {
+  &:hover {
+    background-color: var(--stats-hover-bg);
+    box-shadow: var(--stats-hover-shadow);
+  }
+
+  // Active Filters Display
+  .active-filters {
     display: flex;
-    width: 100%;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-sm);
   }
 }
 
 // Stats Table
 .stats-table {
-  margin: auto;
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: var(--radius-md);
-  overflow: hidden;
 
-  .title {
-    text-align: center;
-    font-size: 1.25rem;
-    font-weight: 600;
-    padding: var(--spacing-md);
-    color: var(--text-color);
+  // Table Header
+  thead {
+    th {
+      padding: var(--stats-cell-padding);
+      font-weight: 600;
+      color: var(--text-color);
+      text-align: center;
+      border-bottom: var(--stats-border-width) solid var(--orange-900);
+    }
   }
 
+  // Table Body
   tbody {
-    border: var(--stats-border-width) solid var(--orange-900);
+    tr {
+      transition: var(--stats-transition);
+
+      &:hover {
+        background-color: rgba(0, 0, 0, var(--stats-hover-opacity));
+
+        .total {
+          background-color: var(--orange-800);
+        }
+
+        .faction,
+        .fill {
+          &.BLUE { background-color: color.adjust(global.$faction-blue, $lightness: -5%); }
+          &.RED { background-color: color.adjust(global.$faction-red, $lightness: -5%); }
+          &.GREEN { background-color: color.adjust(global.$faction-green, $lightness: -5%); }
+          &.YELLOW { background-color: color.adjust(global.$faction-yellow, $lightness: -5%); }
+          &.NEUTRAL { background-color: color.adjust(global.$faction-neutral, $lightness: -10%); }
+        }
+      }
+
+      td {
+        padding: var(--stats-cell-padding);
+        text-align: center;
+        position: relative;
+        transition: var(--stats-transition);
+      }
+    }
   }
 }
 
 // Stats Row
 .stats-row {
-  transition: background-color var(--stats-transition);
+  // Total Column
+  .total {
+    position: relative;
+    min-width: 120px;
 
-  &:hover {
-    background-color: rgba(0, 0, 0, var(--stats-hover-opacity));
-    .total {
-      background-color: var(--orange-800);
-    }
-
-    .faction,
     .fill {
-      &.BLUE { background-color: color.adjust(global.$faction-blue, $lightness: -5%); }
-      &.RED { background-color: color.adjust(global.$faction-red, $lightness: -5%); }
-      &.GREEN { background-color: color.adjust(global.$faction-green, $lightness: -5%); }
-      &.YELLOW { background-color: color.adjust(global.$faction-yellow, $lightness: -5%); }
-      &.NEUTRAL { background-color: color.adjust(global.$faction-neutral, $lightness: -10%); }
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: var(--stats-transition);
     }
+
+    .value {
+      position: relative;
+      z-index: 1;
+      font-weight: 500;
+    }
+  }
+
+  // Faction Columns
+  .faction {
+    font-weight: 500;
+    text-transform: uppercase;
+    min-width: 100px;
   }
 
   // Faction Colors
@@ -85,7 +143,7 @@
   .fill {
     @mixin faction-color($color) {
       background-color: $color;
-      transition: background-color var(--stats-transition);
+      transition: var(--stats-transition);
     }
 
     &.BLUE { @include faction-color(global.$faction-blue); }
@@ -94,50 +152,23 @@
     &.YELLOW { @include faction-color(global.$faction-yellow); }
     &.NEUTRAL { @include faction-color(global.$faction-neutral); }
   }
-
-  // Total Column
-  .total {
-    padding: var(--stats-cell-padding);
-    position: relative;
-    background-color: var(--orange-700);
-    transition: background-color var(--stats-transition);
-
-    .value {
-      text-align: right;
-      z-index: 1;
-      position: relative;
-      font-weight: 500;
-    }
-
-    .fill {
-      top: 0;
-      left: 0;
-      height: 100%;
-      position: absolute;
-    }
-  }
-
-  // Faction Column
-  .faction {
-    text-align: center;
-    padding: var(--stats-cell-padding);
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  }
 }
 
 // Responsive Design
 @media (max-width: 768px) {
   .stats-container {
-    flex-direction: column;
+    padding: var(--spacing-sm);
   }
 
   .stats-table {
     font-size: 0.9rem;
-  }
 
-  .faction-totals,
-  .filtered-totals {
-    width: 100%;
+    .total {
+      min-width: 100px;
+    }
+
+    .faction {
+      min-width: 80px;
+    }
   }
 }

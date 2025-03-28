@@ -65,7 +65,27 @@ export default function FilterComponent(props: StatsProps) {
   useEffect(() => {
     setDateStart(dateRange[0]);
     setDateEnd(dateRange[1]);
-    props.updateFilter({ dateRange });
+
+    // Only include dates in filter that differ from min/max bounds by more than 60 seconds
+    const filterRange: [number | null, number | null] = [
+      Math.abs(dateRange[0] - props.dateRange[0]) < 60 ? null : dateRange[0],
+      Math.abs(dateRange[1] - props.dateRange[1]) < 60 ? null : dateRange[1]
+    ];
+
+    console.log(filterRange);
+    console.log(props.dateRange);
+    // Only update filter if at least one bound is not null
+    if (filterRange[0] !== null || filterRange[1] !== null) {
+      props.updateFilter({ 
+        dateRange: [
+          filterRange[0] ?? props.dateRange[0],
+          filterRange[1] ?? props.dateRange[1]
+        ] 
+      });
+    }
+    else {
+      props.updateFilter({ dateRange: undefined });
+    }
   }, dateRange);
 
   const handleReset = useCallback(() => {
@@ -169,7 +189,6 @@ export default function FilterComponent(props: StatsProps) {
                 onChange={(e) => setDateRange([e?.getTime() || dateStart, dateEnd])}
                 minDate={new Date(props.dateRange[0])}
                 maxDate={new Date(props.dateRange[1])}
-                withSeconds={true}
                 maxLevel='month'
                 label='Start Date'
                 placeholder='Start Date'
@@ -181,7 +200,6 @@ export default function FilterComponent(props: StatsProps) {
                 onChange={(e) => setDateRange([dateStart, e?.getTime() || dateEnd])}
                 minDate={new Date(props.dateRange[0])}
                 maxDate={new Date(props.dateRange[1])}
-                withSeconds={true}
                 maxLevel='month'
                 label='End Date'
                 placeholder='End Date'
@@ -193,8 +211,8 @@ export default function FilterComponent(props: StatsProps) {
               onChangeEnd={setDateRange}
               value={[dateStart, dateEnd]}
               label={null}
-              minRange={360000}
-              step={600}
+              minRange={60 * 60 * 1000}
+              step={60}
               min={props.dateRange?.[0]}
               max={props.dateRange?.[1]}
               mt="md"
