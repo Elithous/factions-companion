@@ -7,13 +7,14 @@ export default function StatsTable(props: { data: ToFromFaction, title: string }
   const froms = Object.keys(data).sort();
   for (const from of froms) {
     // Sort based on amount sent
-    const toValues = Object.entries(data[from]).sort((a, b) => b[1] - a[1]);
+    const toValues = Object.entries(data[from]).sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0));
     for (const values of toValues) {
-      const total = values[1];
+      const total = values[1] ?? 0;
       const to = values[0];
 
-      // Get fill width based on percentage of soliders compared to max within it's category
-      const percentFilled = Math.round((total / toValues[0][1]) * 100);
+      // Get fill width based on percentage of soldiers compared to max within it's category
+      const maxValue = toValues[0][1] ?? 0;
+      const percentFilled = maxValue > 0 ? Math.round((total / maxValue) * 100) : 0;
 
       table.push(
         <tr key={`${from}-${values[0]}`}

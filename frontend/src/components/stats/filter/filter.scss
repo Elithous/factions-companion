@@ -1,41 +1,132 @@
 @use "../../../app/globals.scss" as global;
 
+// CSS Custom Properties
+:root {
+  --filter-padding: var(--spacing-md);
+  --filter-gap: var(--spacing-sm);
+  --filter-radius: var(--radius-md);
+  --filter-bg: rgba(0, 0, 0, 0.05);
+  --filter-hover-bg: rgba(0, 0, 0, 0.08);
+  --filter-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --filter-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --filter-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --filter-border-color: var(--orange-900);
+  --filter-input-bg: var(--orange-800);
+  --filter-input-hover-bg: var(--orange-700);
+  --filter-input-focus-bg: var(--orange-600);
+}
+
 // Filter Container
 .filters-container {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-md);
-  gap: var(--spacing-sm);
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: var(--radius-md);
+  padding: var(--filter-padding);
+  gap: var(--filter-gap);
+  background-color: var(--filter-bg);
+  border-radius: var(--filter-radius);
+  box-shadow: var(--filter-shadow);
+  transition: var(--filter-transition);
+  border: 1px solid var(--filter-border-color);
 
+  &:hover {
+    background-color: var(--filter-hover-bg);
+    box-shadow: var(--filter-hover-shadow);
+  }
+
+  // Basic Filters
+  .basic-filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--filter-gap);
+  }
+
+  // Advanced Filters
+  .advanced-filters {
+    display: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: var(--filter-transition);
+    max-height: 0;
+    overflow: hidden;
+    border-top: 1px solid var(--filter-border-color);
+    padding-top: var(--filter-gap);
+    margin-top: var(--filter-gap);
+
+    &.expanded {
+      display: flex;
+      flex-direction: column;
+      gap: var(--filter-gap);
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 1000px; // Adjust based on content
+    }
+  }
+
+  // Common Filter Styles
   .filter {
     margin: var(--spacing-xs) 0;
+
+    label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-color);
+      transition: var(--filter-transition);
+    }
 
     select,
     input {
       width: 100%;
       padding: var(--spacing-sm);
-      background-color: var(--orange-800);
+      background-color: var(--filter-input-bg);
       color: var(--text-color);
-      border: 1px solid var(--orange-900);
+      border: 1px solid var(--filter-border-color);
       border-radius: var(--radius-sm);
-      transition: all var(--transition-fast);
+      transition: var(--filter-transition);
+      font-size: 0.95rem;
 
       &:hover {
-        background-color: var(--orange-700);
+        background-color: var(--filter-input-hover-bg);
         border-color: var(--orange-600);
       }
 
       &:focus {
         outline: none;
         border-color: var(--orange-500);
+        background-color: var(--filter-input-focus-bg);
         box-shadow: 0 0 0 2px rgba(var(--orange-500), 0.2);
       }
 
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
       option {
-        background-color: var(--orange-800);
+        background-color: var(--filter-input-bg);
         color: var(--text-color);
+      }
+    }
+  }
+
+  // Type Filter Specific
+  .type-filter {
+    .type-select {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+  }
+
+  // Time Filter Specific
+  .time-filter {
+    .date-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+
+      @media (min-width: 768px) {
+        flex-direction: row;
       }
     }
   }
@@ -43,6 +134,7 @@
 
 // Date Time Picker Overrides
 .mantine-DateTimePicker-root {
+  width: 100%;
 
   .mantine-DateTimePicker-calendarHeaderLevel,
   .mantine-DateTimePicker-calendarHeaderControlIcon {
@@ -51,27 +143,83 @@
 
   .mantine-DateTimePicker-day {
     color: var(--text-color);
-    background-color: var(--orange-800);
+    background-color: var(--filter-input-bg);
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: var(--filter-transition);
 
     &:hover {
-      background-color: var(--orange-700);
+      background-color: var(--filter-input-hover-bg);
     }
 
     &[data-selected] {
-      background-color: var(--orange-600);
+      background-color: var(--filter-input-focus-bg);
       font-weight: 600;
     }
   }
 
   .mantine-DateTimePicker-timeInput {
-    background-color: var(--orange-800);
+    background-color: var(--filter-input-bg);
     color: var(--text-color);
-    border-color: var(--orange-900);
+    border-color: var(--filter-border-color);
 
     &:focus {
       border-color: var(--orange-600);
+      background-color: var(--filter-input-focus-bg);
     }
+  }
+}
+
+// Range Slider Overrides
+.mantine-RangeSlider-root {
+  .mantine-RangeSlider-thumb {
+    background-color: var(--orange-600);
+    border-color: var(--orange-500);
+    transition: var(--filter-transition);
+
+    &:hover {
+      background-color: var(--orange-500);
+      border-color: var(--orange-400);
+    }
+  }
+
+  .mantine-RangeSlider-bar {
+    background-color: var(--orange-600);
+  }
+
+  .mantine-RangeSlider-label {
+    background-color: var(--filter-input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--filter-border-color);
+  }
+}
+
+// Radio Group Overrides
+.mantine-RadioGroup-root {
+  .mantine-Radio-label {
+    color: var(--text-color);
+  }
+
+  .mantine-Radio-radio {
+    background-color: var(--filter-input-bg);
+    border-color: var(--filter-border-color);
+    transition: var(--filter-transition);
+
+    &:hover {
+      background-color: var(--filter-input-hover-bg);
+    }
+
+    &:checked {
+      background-color: var(--filter-input-focus-bg);
+      border-color: var(--orange-500);
+    }
+  }
+}
+
+// Button Overrides
+.mantine-Button-root {
+  transition: var(--filter-transition);
+
+  &:hover {
+    transform: translateY(-1px);
   }
 }

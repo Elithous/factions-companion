@@ -321,6 +321,7 @@ export default function MapComponent({
 }: MapProps) {
   const [mapSettings, setMapSettings] = useState<MapSettings>(DEFAULT_SETTINGS);
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [showInstructions, setShowInstructions] = useState(true);
 
   // Initialize panzoom
   const panzoomRef = usePanzoom(wheelParentDepth, mapScale);
@@ -408,11 +409,18 @@ export default function MapComponent({
             </Popover.Dropdown>
           </Popover>
         </div>
+        {showInstructions && (
+          <Text 
+            className="map-instructions" 
+            size="sm" 
+            color="dimmed"
+            onClick={() => setShowInstructions(false)}
+            style={{ cursor: 'pointer' }}
+          >
+            {isMobile ? 'Pinch to zoom. Double tap to select tile' : 'Scroll to zoom. Double click to select tile'}
+          </Text>
+        )}
       </div>
-
-      <Text className="map-instructions" size="sm" color="dimmed">
-        {isMobile ? 'Pinch to zoom. Double tap to select tile' : 'Scroll to zoom. Double click to select tile'}
-      </Text>
     </div>
   );
 }
