@@ -1,38 +1,142 @@
 @use "../globals.scss" as global;
 
-// Table Styles
-.table-base {
-  border: var(--radius-sm) solid var(--orange-900);
-  border-radius: var(--radius-sm);
-  width: 50%;
-  padding: var(--spacing-sm);
-  background-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+// Variables
+:root {
+  --calculator-spacing-xs: 0.25rem;
+  --calculator-spacing-sm: 0.5rem;
+  --calculator-spacing-md: 1rem;
+  --calculator-spacing-lg: 1.5rem;
+  --calculator-radius-sm: 4px;
+  --calculator-radius-md: 8px;
+  --calculator-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --calculator-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --calculator-border-color: var(--orange-900);
+  --calculator-bg-color: rgba(0, 0, 0, 0.1);
+  --calculator-border-light: rgba(255, 255, 255, 0.1);
+  --calculator-hovercard-bg: rgba(0, 0, 0, 0.8);
 }
 
-.costs {
-  @extend .table-base;
-  
+// Layout
+.calculator-container {
+  padding: var(--calculator-spacing-md);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.calculator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--calculator-spacing-lg);
+}
+
+// Table Base Styles
+.table-base {
+  border: var(--calculator-radius-sm) solid var(--calculator-border-color);
+  border-radius: var(--calculator-radius-sm);
+  width: 50%;
+  padding: var(--calculator-spacing-sm);
+  background-color: var(--calculator-bg-color);
+  box-shadow: var(--calculator-shadow-sm);
+  transition: box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: var(--calculator-shadow-md);
+  }
+
   td {
     text-align: right;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--calculator-spacing-xs) var(--calculator-spacing-sm);
+    border-bottom: 1px solid var(--calculator-border-light);
   }
-  
+
   tr:last-child td {
     border-bottom: none;
   }
 }
 
-.outputs {
+// Cost Table
+.costs {
   @extend .table-base;
-  margin-left: var(--spacing-md);
 }
 
+// Output Table
+.outputs {
+  @extend .table-base;
+  margin-left: var(--calculator-spacing-md);
+}
+
+// Title Styles
 .title {
   text-align: center;
   font-size: 1.25rem;
-  margin: var(--spacing-md) 0;
+  margin: var(--calculator-spacing-md) 0;
   color: var(--text-color);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  position: relative;
+  padding-bottom: var(--calculator-spacing-sm);
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 2px;
+    background-color: var(--calculator-border-color);
+    border-radius: 1px;
+  }
+}
+
+// Controls
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--calculator-spacing-md);
+  padding: var(--calculator-spacing-sm);
+  border-radius: var(--calculator-radius-md);
+
+  button {
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Config Popover
+.config-popover {
+  min-width: 300px;
+  padding: var(--calculator-spacing-md);
+}
+
+// HoverCard Styles
+.mantine-HoverCard-dropdown {
+  width: 200px !important;
+  background-color: var(--calculator-hovercard-bg) !important;
+  border: 1px solid var(--calculator-border-color);
+  border-radius: var(--calculator-radius-sm);
+  padding: var(--calculator-spacing-sm);
+  box-shadow: var(--calculator-shadow-md);
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .table-base {
+    width: 100%;
+  }
+
+  .outputs {
+    margin-left: 0;
+    margin-top: var(--calculator-spacing-md);
+  }
+
+  .controls {
+    flex-direction: row;
+    justify-content: center;
+    margin: var(--calculator-spacing-md) 0;
+  }
 }
