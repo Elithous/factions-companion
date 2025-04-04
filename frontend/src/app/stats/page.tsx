@@ -14,10 +14,12 @@ import GameFilter from '@/components/general/gameFilter';
 import { Container, Loader, Text, Paper, Stack, Group } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-import Volbadihr from '../../../public/maps/Volbadihr.png';
+import Necropolis from '../../../public/maps/Necropolis.png';
 import Rivers from '../../../public/maps/Rivers.png';
-import Windmill from '../../../public/maps/Windmill.png';
 import Smallworld from '../../../public/maps/Smallworld.png';
+import Volbadihr from '../../../public/maps/Volbadihr.png';
+import Wetlands from '../../../public/maps/Wetlands.png';
+import Windmill from '../../../public/maps/Windmill.png';
 
 export interface ToFromFaction {
   [fromFaction: string]: {
@@ -25,7 +27,14 @@ export interface ToFromFaction {
   }
 }
 
-const mapImageMap: { [mapName: string]: StaticImageData } = { Windmill, Volbadihr, Rivers, Smallworld }
+const mapImageMap: { [mapName: string]: StaticImageData } = {
+  Necropolis,
+  Rivers,
+  Smallworld,
+  Volbadihr,
+  Wetlands,
+  Windmill
+}
 
 interface LoadingState {
   data: boolean;
@@ -90,7 +99,7 @@ export default function StatsPage() {
   const fetchFilteredData = useCallback(async (gameId: string, filter: StatsFilter) => {
     try {
       setLoading(prev => ({ ...prev, data: true }));
-      
+
       const params: {
         unitType?: string;
         gameId?: string;

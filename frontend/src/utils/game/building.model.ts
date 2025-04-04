@@ -269,30 +269,30 @@ export const BuildingData = [
     name: "ARENA",
     cost: {
       wood: { value: 600, start: 0 },
-      iron: { value: 1000, start: 0 },
-      worker: { value: 15, start: 0 }
+      iron: { value: 1200, start: 0 },
+      worker: { value: 30, start: 0 }
     },
     hq: 12,
     baseEffects: [
       {
         type: "world",
         subtype: "guardianPower",
-        bonus: 5
+        bonus: 3
       },
       {
         type: "production",
         subtype: "guardian",
-        bonus: 5
+        bonus: 3
       },
       {
         type: "world",
         subtype: "knightPower",
-        bonus: 5
+        bonus: 3
       },
       {
         type: "production",
         subtype: "knight",
-        bonus: 5
+        bonus: 3
       },
       {
         type: "production",
@@ -306,9 +306,9 @@ export const BuildingData = [
   {
     name: "MERCENARY_OFFICE",
     cost: {
-      wood: { value: 400, start: 0 },
-      iron: { value: 400, start: 0 },
-      worker: { value: 15, start: 0 }
+      wood: { value: 350, start: 0 },
+      iron: { value: 350, start: 0 },
+      worker: { value: 12, start: 0 }
     },
     hq: 12,
     baseEffects: [
@@ -358,12 +358,12 @@ export const BuildingData = [
       {
         type: "storage",
         subtype: "wood",
-        bonus: 6
+        bonus: 8
       },
       {
         type: "storage",
         subtype: "iron",
-        bonus: 6
+        bonus: 8
       }
     ],
     requires: "TOWN_HALL",
