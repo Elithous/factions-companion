@@ -1,9 +1,9 @@
 'use client';
 
 import './calculator.scss';
-import { Button, Flex, Group, HoverCard, NumberInput, Popover, Table, Text } from "@mantine/core";
+import { Button, Flex, Group, HoverCard, Modal, NumberInput, Popover, Table, Text, Textarea } from "@mantine/core";
 import { ReactElement, useEffect, useState, useCallback } from "react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaFileExport, FaFileImport } from "react-icons/fa";
 import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import { Building } from '../../utils/game/building.model';
@@ -15,6 +15,10 @@ interface BuildDataStorage {
   currentBuild: Building[];
   goalHq: number;
   goalBuild: Building[];
+}
+
+interface ExportData extends BuildDataStorage {
+  config: GameConfig | undefined;
 }
 
 type ResourceState = { [res in ScalingTypes]: number; };
@@ -43,6 +47,11 @@ export default function CalculatorPage() {
   const [tickBreakdown, setTickBreakdown] = useState<ReactElement | undefined>();
   const [costTable, setCostTable] = useState<ReactElement[]>([]);
   const [outputTable, setOutputTable] = useState<ReactElement[]>([]);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [exportText, setExportText] = useState('');
+  const [importError, setImportError] = useState('');
 
   // Handlers
   const setCurrentResource = useCallback((resource: ScalingTypes, value: number) => {
@@ -61,6 +70,46 @@ export default function CalculatorPage() {
       setCurrentHq(goalHq);
     }
   }, [currentBuild, currentHq, goalBuild, goalHq]);
+
+  // Import/Export handlers
+  const handleExport = useCallback(() => {
+    const exportData: ExportData = {
+      currentHq,
+      currentBuild,
+      goalHq,
+      goalBuild,
+      config
+    };
+    const exportString = JSON.stringify(exportData, null, 2);
+    setExportText(exportString);
+    navigator.clipboard.writeText(exportString).catch(console.error);
+    setExportModalOpen(true);
+  }, [currentHq, currentBuild, goalHq, goalBuild, config]);
+
+  const handleImport = useCallback(() => {
+    try {
+      const importData = JSON.parse(importText) as ExportData;
+
+      if (!importData.currentHq || !importData.currentBuild || !importData.goalHq || !importData.goalBuild) {
+        throw new Error('Invalid import data: missing required fields');
+      }
+
+      setCurrentHq(importData.currentHq);
+      setCurrentBuild(importData.currentBuild);
+      setGoalHq(importData.goalHq);
+      setGoalBuild(importData.goalBuild);
+
+      if (importData.config && isValidConfig(importData.config)) {
+        setConfig(importData.config);
+      }
+
+      setImportError('');
+      setImportModalOpen(false);
+      setImportText('');
+    } catch (error) {
+      setImportError('Invalid import data. Please check the format and try again.');
+    }
+  }, [importText]);
 
   // Local Storage
   useEffect(() => {
@@ -187,24 +236,32 @@ export default function CalculatorPage() {
   return (
     <div className="calculator-container">
       <div className="calculator-header">
-        <Popover>
-          <Popover.Target>
-            <Button>Change Config</Button>
-          </Popover.Target>
-          <Popover.Dropdown className="config-popover">
-            <CalculatorConfigComponent config={config} setConfig={setConfig} />
-          </Popover.Dropdown>
-        </Popover>
+        <Group>
+          <Popover trapFocus closeOnClickOutside={false}>
+            <Popover.Target>
+              <Button>Change Config</Button>
+            </Popover.Target>
+            <Popover.Dropdown className="config-popover">
+              <CalculatorConfigComponent config={config} setConfig={setConfig} />
+            </Popover.Dropdown>
+          </Popover>
+          <Button onClick={() => setImportModalOpen(true)} leftSection={<FaFileImport />}>
+            Import
+          </Button>
+          <Button onClick={handleExport} leftSection={<FaFileExport />}>
+            Export
+          </Button>
+        </Group>
       </div>
 
       <Flex gap='xs'>
         <div style={{ flexGrow: '1' }}>
           <p className='title'>Current</p>
-          <BuildingsDisplayComponent 
-            buildings={currentBuild} 
+          <BuildingsDisplayComponent
+            buildings={currentBuild}
             setBuildings={setCurrentBuild}
-            hq={currentHq} 
-            setHq={setCurrentHq} 
+            hq={currentHq}
+            setHq={setCurrentHq}
           />
         </div>
         <Flex
@@ -222,11 +279,11 @@ export default function CalculatorPage() {
         </Flex>
         <div style={{ flexGrow: '1' }}>
           <p className='title'>Goal</p>
-          <BuildingsDisplayComponent 
-            buildings={goalBuild} 
+          <BuildingsDisplayComponent
+            buildings={goalBuild}
             setBuildings={setGoalBuild}
-            hq={goalHq} 
-            setHq={setGoalHq} 
+            hq={goalHq}
+            setHq={setGoalHq}
           />
         </div>
       </Flex>
@@ -278,6 +335,87 @@ export default function CalculatorPage() {
           </Table>
         </div>
       </Flex>
+
+      <Modal
+        opened={importModalOpen}
+        onClose={() => {
+          setImportModalOpen(false);
+          setImportError('');
+          setImportText('');
+        }}
+        title="Import Configuration"
+        size="70%"
+        styles={{
+          content: {
+            minHeight: '50vh',
+            resize: 'both',
+            overflow: 'auto'
+          },
+          header: {
+            background: 'var(--orange-700)'
+          },
+          body: {
+            height: 'calc(100% - 60px)', // Account for header
+            display: 'flex',
+            flexDirection: 'column'
+          }
+        }}
+      >
+        <Flex direction="column" gap="md" style={{ flex: 1 }}>
+          <Textarea
+            placeholder="Paste your configuration here..."
+            value={importText}
+            onChange={(e) => setImportText(e.currentTarget.value)}
+            error={importError}
+            styles={{
+              root: { flex: 1, display: 'flex', flexDirection: 'column' },
+              wrapper: { flex: 1 },
+              input: { height: 'fit-content', resize: 'vertical' }
+            }}
+          />
+          <Group justify="flex-end">
+            <Button onClick={handleImport}>Import</Button>
+          </Group>
+        </Flex>
+      </Modal>
+
+      <Modal
+        opened={exportModalOpen}
+        onClose={() => {
+          setExportModalOpen(false);
+          setExportText('');
+        }}
+        title="Export Configuration"
+        size="70%"
+        styles={{
+          content: {
+            minHeight: '50vh',
+            resize: 'both',
+            overflow: 'auto'
+          },
+          header: {
+            background: 'var(--orange-700)'
+          },
+          body: {
+            height: 'calc(100% - 60px)', // Account for header
+            display: 'flex',
+            flexDirection: 'column'
+          }
+        }}
+      >
+        <Flex direction="column" gap="md" style={{ flex: 1 }}>
+          <Text size="sm" c="dimmed">Configuration has been copied to clipboard</Text>
+          <Textarea
+            value={exportText}
+            readOnly
+            styles={{
+              root: { flex: 1, display: 'flex', flexDirection: 'column' },
+              wrapper: { flex: 1 },
+              input: { height: 'fit-content', resize: 'vertical' }
+            }}
+          />
+        </Flex>
+      </Modal>
     </div>
   );
 }
