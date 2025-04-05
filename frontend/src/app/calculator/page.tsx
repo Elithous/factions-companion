@@ -106,7 +106,7 @@ export default function CalculatorPage() {
       setImportError('');
       setImportModalOpen(false);
       setImportText('');
-    } catch (error) {
+    } catch {
       setImportError('Invalid import data. Please check the format and try again.');
     }
   }, [importText]);
