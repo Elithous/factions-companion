@@ -28,6 +28,11 @@ export default function BuildingsComponent(props: { data: Building, updateData: 
     });
   }, [type, count, level]);
 
+  useEffect(() => {
+    setCount(props.data.count);
+    setLevel(props.data.level);
+  }, [props.data]);
+
   return (
     <Flex gap='xs'>
       <Select

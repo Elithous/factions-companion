@@ -90,6 +90,11 @@ export default function CalculatorPage() {
     try {
       const importData = JSON.parse(importText) as ExportData;
 
+      if (typeof importData.goalBuild === 'undefined') {
+        importData.goalBuild = goalBuild;
+        importData.goalHq = goalHq;
+      }
+
       if (!importData.currentHq || !importData.currentBuild || !importData.goalHq || !importData.goalBuild) {
         throw new Error('Invalid import data: missing required fields');
       }

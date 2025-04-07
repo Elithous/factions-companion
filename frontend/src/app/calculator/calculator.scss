@@ -140,3 +140,17 @@
     margin: var(--calculator-spacing-md) 0;
   }
 }
+
+// Build Tips
+.build-tips {
+  @extend .table-base;
+  margin: 1rem 0;
+  width: 100%;
+
+  th, td {
+    width: 33%;
+    vertical-align: top;
+    text-align: left;
+    padding: 0.5rem;
+  }
+}
