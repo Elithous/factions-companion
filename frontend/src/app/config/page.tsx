@@ -115,6 +115,7 @@ export default function ConfigPage() {
         }
       },
       prod_multi: defaultConfig.prod_multi,
+      world_multi: defaultConfig.world_multi,
       useCostChange: false,
       costChange: 0
     };
