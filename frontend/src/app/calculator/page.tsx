@@ -1,13 +1,15 @@
 'use client';
 
 import './calculator.scss';
-import { Button, Flex, Group, HoverCard, Modal, NumberInput, Popover, Table, Text, Textarea } from "@mantine/core";
+import { Button, Flex, Group, HoverCard, Modal, NumberInput, Popover, Table, Text, Textarea, Tooltip } from "@mantine/core";
 import { ReactElement, useEffect, useState, useCallback } from "react";
-import { FaArrowLeft, FaArrowRight, FaFileExport, FaFileImport } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaFileExport, FaFileImport, FaCompressAlt } from "react-icons/fa";
 import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
+import BuildTips from './_components/buildTips';
 import { Building } from '../../utils/game/building.model';
-import { GameConfig, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierTypes, MultiplierValues, ScalingTypes, ScalingValues } from '@/utils/game/game.helper';
+import { GameConfig, WorldEffectTypes, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierTypes, MultiplierValues, ScalingTypes, ScalingValues } from '@/utils/game/game.helper';
+import { BuildingData } from '@/utils/game/building.model';
 
 // Types
 interface BuildDataStorage {
@@ -34,6 +36,29 @@ const DEFAULT_RESOURCES: ResourceState = {
   iron: 0,
   worker: 0
 };
+
+// Helper function to calculate world effects from buildings
+function getTotalWorldEffects(buildings: Building[]) {
+  // Initialize with all world effect types from the imported type
+  const totalEffects: { [key in WorldEffectTypes]: number } = {
+    attack: 0,
+    defense: 0
+  };
+
+  buildings.forEach(building => {
+    if (!building.type) return;
+    const buildingData = BuildingData.find(data => data.name === building.type);
+
+    buildingData?.baseEffects.forEach(effect => {
+      if (effect.type === 'world' && 'bonus' in effect && effect.subtype in totalEffects) {
+        const bonusEffect = effect.bonus * building.count * building.level;
+        totalEffects[effect.subtype as WorldEffectTypes] += bonusEffect;
+      }
+    });
+  });
+
+  return totalEffects;
+}
 
 export default function CalculatorPage() {
   // State
@@ -70,6 +95,40 @@ export default function CalculatorPage() {
       setCurrentHq(goalHq);
     }
   }, [currentBuild, currentHq, goalBuild, goalHq]);
+
+  // Function to condense buildings with the same type and level
+  const condenseBuildings = useCallback((buildings: Building[]): Building[] => {
+    // Group buildings by type and level
+    const grouped: Record<string, Building> = {};
+
+    buildings.forEach(building => {
+      if (!building.type) return; // Skip buildings with no type
+
+      const key = `${building.type}-${building.level}`;
+
+      if (grouped[key]) {
+        // If this type+level combination already exists, add the count
+        grouped[key].count += building.count;
+      } else {
+        // Create a new entry for this type+level combination
+        grouped[key] = { ...building };
+      }
+    });
+
+    // Convert back to array and assign new IDs
+    return Object.values(grouped).map((building, index) => ({
+      ...building,
+      id: index + 1
+    }));
+  }, []);
+
+  const handleCondenseCurrentBuildings = useCallback(() => {
+    setCurrentBuild(condenseBuildings(currentBuild));
+  }, [currentBuild, condenseBuildings]);
+
+  const handleCondenseGoalBuildings = useCallback(() => {
+    setGoalBuild(condenseBuildings(goalBuild));
+  }, [goalBuild, condenseBuildings]);
 
   // Import/Export handlers
   const handleExport = useCallback(() => {
@@ -227,6 +286,27 @@ export default function CalculatorPage() {
     if (!config) return;
 
     const goalOutput = getTotalOutput(goalBuild, config);
+    const worldEffects = getTotalWorldEffects(goalBuild);
+
+    // Calculate effective soldiers (soldiers with attack/defense bonus)
+    const soldierOutput = goalOutput.soldiers.final;
+
+    // Apply world effects and config multipliers for attack and defense
+    const attackConfig = config.world_multi.attack;
+    const defenseConfig = config.world_multi.defense;
+
+    // Calculate base building bonus percentage (from Guard Towers, etc.)
+    const attackBuildingBonus = worldEffects.attack;
+    const defenseBuildingBonus = worldEffects.defense;
+
+    // Apply the config percentage bonus on top of building bonus
+    const totalAttackPercent = attackBuildingBonus + attackConfig.percent;
+    const totalDefensePercent = defenseBuildingBonus + defenseConfig.percent;
+
+    // Calculate final effective soldiers with percentage and final multipliers
+    const effectiveAttackSoldiers = soldierOutput * (1 + totalAttackPercent / 100) * attackConfig.final;
+    const effectiveDefenseSoldiers = soldierOutput * (1 + totalDefensePercent / 100) * defenseConfig.final;
+
     const updatedOutputTable: ReactElement[] = MultiplierValues.map(value => (
       <Table.Tr key={value}>
         <Table.Td>{`${value[0].toUpperCase()}${value.substring(1)}`}</Table.Td>
@@ -234,6 +314,24 @@ export default function CalculatorPage() {
         <Table.Td>{goalOutput[value].final.toFixed(2)}</Table.Td>
       </Table.Tr>
     ));
+
+    // Add effective soldiers rows
+    updatedOutputTable.push(
+      <Table.Tr key="effective-attack-soldiers">
+        <Table.Td>Effective Attack</Table.Td>
+        <Table.Td>{soldierOutput.toFixed(2)}</Table.Td>
+        <Table.Td>{effectiveAttackSoldiers.toFixed(2)}</Table.Td>
+      </Table.Tr>
+    );
+
+    updatedOutputTable.push(
+      <Table.Tr key="effective-defense-soldiers">
+        <Table.Td>Effective Defense</Table.Td>
+        <Table.Td>{soldierOutput.toFixed(2)}</Table.Td>
+        <Table.Td>{effectiveDefenseSoldiers.toFixed(2)}</Table.Td>
+      </Table.Tr>
+    );
+
     setOutputTable(updatedOutputTable);
   }, [goalBuild, config]);
 
@@ -261,7 +359,14 @@ export default function CalculatorPage() {
 
       <Flex gap='xs'>
         <div style={{ flexGrow: '1' }}>
-          <p className='title'>Current</p>
+          <Flex justify="space-between" align="center">
+            <p className='title'>Current</p>
+            <Tooltip label="Combine buildings of the same type and level">
+              <Button size="xs" onClick={handleCondenseCurrentBuildings} leftSection={<FaCompressAlt />}>
+                Condense
+              </Button>
+            </Tooltip>
+          </Flex>
           <BuildingsDisplayComponent
             buildings={currentBuild}
             setBuildings={setCurrentBuild}
@@ -283,7 +388,14 @@ export default function CalculatorPage() {
           </Button>
         </Flex>
         <div style={{ flexGrow: '1' }}>
-          <p className='title'>Goal</p>
+          <Flex justify="space-between" align="center">
+            <p className='title'>Goal</p>
+            <Tooltip label="Combine buildings of the same type and level">
+              <Button size="xs" onClick={handleCondenseGoalBuildings} leftSection={<FaCompressAlt />}>
+                Condense
+              </Button>
+            </Tooltip>
+          </Flex>
           <BuildingsDisplayComponent
             buildings={goalBuild}
             setBuildings={setGoalBuild}
@@ -340,6 +452,15 @@ export default function CalculatorPage() {
           </Table>
         </div>
       </Flex>
+
+      <BuildTips
+        currentBuild={currentBuild}
+        goalBuild={goalBuild}
+        currentHq={currentHq}
+        goalHq={goalHq}
+        currentResources={currentResources}
+        config={config}
+      />
 
       <Modal
         opened={importModalOpen}

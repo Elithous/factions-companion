@@ -8,6 +8,9 @@ export type ScalingTypes = typeof ScalingValues[number];
 export const MultiplierValues = ['wood', 'iron', 'workers', 'soldiers', 'knight', 'guardian'] as const;
 export type MultiplierTypes = typeof MultiplierValues[number];
 
+export const WorldEffectValues = ['attack', 'defense'] as const;
+export type WorldEffectTypes = typeof WorldEffectValues[number];
+
 export interface GameConfig {
   cost_multi: {
     building: { [key in ScalingTypes]: number }
@@ -15,6 +18,9 @@ export interface GameConfig {
   },
   prod_multi: {
     [key in MultiplierTypes]: { final: number, percent: number }
+  },
+  world_multi: {
+    [key in WorldEffectTypes]: { final: number, percent: number }
   },
   useCostChange: boolean
   costChange: number
@@ -32,6 +38,10 @@ export const defaultConfig: GameConfig = {
     soldiers: { final: 1, percent: 0 },
     guardian: { final: 1, percent: 0 },
     knight: { final: 1, percent: 0 }
+  },
+  world_multi: {
+    attack: { final: 1, percent: 0 },
+    defense: { final: 1, percent: 0 }
   },
   useCostChange: false,
   costChange: 0
@@ -57,7 +67,11 @@ export function isValidConfig(config: GameConfig) {
       config.prod_multi.guardian.percent !== undefined &&
       config.prod_multi.guardian.final !== undefined &&
       config.prod_multi.knight.percent !== undefined &&
-      config.prod_multi.knight.final !== undefined;
+      config.prod_multi.knight.final !== undefined &&
+      config.world_multi.attack.percent !== undefined &&
+      config.world_multi.attack.final !== undefined &&
+      config.world_multi.defense.percent !== undefined &&
+      config.world_multi.defense.final !== undefined;
 
       return valid;
   } catch {

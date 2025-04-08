@@ -4,7 +4,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { fetchBackend } from "@/utils/api.helper";
 import GameFilter from "@/components/general/gameFilter";
 import { Button, Checkbox, Flex, NumberInput, Slider, Table } from "@mantine/core";
-import { GameConfig, MultiplierValues, ScalingValues, defaultConfig } from '@/utils/game/game.helper';
+import { GameConfig, MultiplierValues, ScalingValues, WorldEffectValues, defaultConfig } from '@/utils/game/game.helper';
 
 export default function CalculatorConfigComponent(props: { config?: GameConfig, setConfig: Dispatch<SetStateAction<GameConfig | undefined>> }) {
   const [gameId, setGameId] = useState('');
@@ -15,6 +15,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
 
   const [scaleRows, setScaleRows] = useState<React.JSX.Element[]>();
   const [multiRows, setMultiRows] = useState<React.JSX.Element[]>();
+  const [worldMultiRows, setWorldMultiRows] = useState<React.JSX.Element[]>();
 
   const saveConfig = () => {
     const updateConfig = {
@@ -59,6 +60,7 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
               }
             },
             prod_multi: localConfig.prod_multi ?? defaultConfig.prod_multi,
+            world_multi: localConfig.world_multi ?? defaultConfig.world_multi,
             useCostChange: localConfig.useCostChange,
             costChange: localConfig.costChange
           }
@@ -141,6 +143,42 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
       }));
   }, [localConfig]);
 
+  useEffect(() => {
+    setWorldMultiRows(WorldEffectValues
+      .map(type => {
+        const multis = localConfig.world_multi?.[type] || defaultConfig.world_multi![type];
+        return <Table.Tr key={`${type}-world-multi`}>
+          <Table.Td>{`${type[0].toUpperCase()}${type.substring(1)}`}</Table.Td>
+          <Table.Td>
+            <NumberInput
+              value={multis.percent}
+              onValueChange={(e) => {
+                localConfig.world_multi![type].percent = e.floatValue || 0;
+                setLocalConfig(structuredClone(localConfig));
+              }}
+              style={{ width: '70px' }}
+              decimalScale={1}
+              fixedDecimalScale
+              hideControls
+            />
+          </Table.Td>
+          <Table.Td>
+            <NumberInput
+              value={multis.final}
+              onValueChange={(e) => {
+                localConfig.world_multi![type].final = e.floatValue || 1;
+                setLocalConfig(structuredClone(localConfig));
+              }}
+              style={{ width: '70px' }}
+              decimalScale={2}
+              fixedDecimalScale
+              hideControls
+            />
+          </Table.Td>
+        </Table.Tr>
+      }));
+  }, [localConfig]);
+
   return (
     <div className='calc-config' suppressHydrationWarning>
       <p style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '20px' }}>Level Scaling</p>
@@ -185,6 +223,18 @@ export default function CalculatorConfigComponent(props: { config?: GameConfig, 
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{multiRows}</Table.Tbody>
+      </Table>
+
+      <p style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '20px' }}>World Effect Multis</p>
+      <Table>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th></Table.Th>
+            <Table.Th style={{ textAlign: 'center' }}>+%</Table.Th>
+            <Table.Th style={{ textAlign: 'center' }}>X</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>{worldMultiRows}</Table.Tbody>
       </Table>
 
       <Flex>
