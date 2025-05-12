@@ -8,7 +8,7 @@ import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import BuildTips from './_components/buildTips';
 import { Building } from '../../utils/game/building.model';
-import { GameConfig, WorldEffectTypes, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierTypes, MultiplierValues, ScalingTypes, ScalingValues, StorageValues, StorageTypes, getTotalStorage } from '@/utils/game/game.helper';
+import { GameConfig, WorldEffectTypes, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierTypes, MultiplierValues, ScalingTypes, ScalingValues, StorageTypes, getTotalStorage } from '@/utils/game/game.helper';
 import { BuildingData } from '@/utils/game/building.model';
 
 // Types
