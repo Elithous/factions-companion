@@ -34,11 +34,11 @@
 .table-base {
   border: var(--calculator-radius-sm) solid var(--calculator-border-color);
   border-radius: var(--calculator-radius-sm);
-  width: 50%;
   padding: var(--calculator-spacing-sm);
   background-color: var(--calculator-bg-color);
   box-shadow: var(--calculator-shadow-sm);
   transition: box-shadow 0.2s ease-in-out;
+  margin: var(--calculator-spacing-sm);
 
   &:hover {
     box-shadow: var(--calculator-shadow-md);
@@ -58,12 +58,14 @@
 // Cost Table
 .costs {
   @extend .table-base;
+  width: 50%;
+  margin: auto;
 }
 
 // Output Table
 .outputs {
   @extend .table-base;
-  margin-left: var(--calculator-spacing-md);
+  width: 50%;
 }
 
 // Title Styles

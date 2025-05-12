@@ -1,5 +1,3 @@
-
-
 export const BuildingData = [
   {
     name: "WOODCUTTER",
@@ -17,7 +15,8 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
+    unique: false,
+    tiers: 1
   },
   {
     name: "MINE",
@@ -35,7 +34,8 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
+    unique: false,
+    tiers: 1
   },
   {
     name: "SAWMILL",
@@ -62,8 +62,9 @@ export const BuildingData = [
         base: 200
       }
     ],
-    requires: "SAWMILL",
-    unique: false
+    requires: null,
+    unique: false,
+    tiers: 2
   },
   {
     name: "FURNACE",
@@ -90,8 +91,9 @@ export const BuildingData = [
         base: 200
       }
     ],
-    requires: "FURNACE",
-    unique: false
+    requires: null,
+    unique: false,
+    tiers: 2
   },
   {
     name: "STORAGE",
@@ -114,7 +116,8 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
+    unique: false,
+    tiers: 1
   },
   {
     name: "TRAINING_CENTER",
@@ -132,7 +135,8 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
+    unique: false,
+    tiers: 1
   },
   {
     name: "BARRACK",
@@ -150,14 +154,15 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
+    unique: false,
+    tiers: 1
   },
   {
     name: "TAVERN",
     cost: {
       wood: { value: 150, start: 0 },
       iron: { value: 100, start: 0 },
-      worker: { value: 10, start: 4 }
+      worker: { value: 0, start: 0 }
     },
     hq: 5,
     baseEffects: [
@@ -168,7 +173,8 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
+    unique: false,
+    tiers: 1
   },
   {
     name: "HOUSE",
@@ -186,32 +192,15 @@ export const BuildingData = [
       }
     ],
     requires: null,
-    unique: false
-  },
-  {
-    name: "COMMAND_CENTER",
-    cost: {
-      wood: { value: 500, start: 0 },
-      iron: { value: 1000, start: 0 },
-      worker: { value: 15, start: 0 }
-    },
-    hq: 10,
-    baseEffects: [
-      {
-        type: "talent",
-        subtype: "talent",
-        base: 1
-      }
-    ],
-    requires: "COMMAND_CENTER",
-    unique: true
+    unique: false,
+    tiers: 1
   },
   {
     name: "KNIGHT_TRAINING_CENTER",
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 1000, start: 0 },
-      worker: { value: 15, start: 0 }
+      worker: { value: 5, start: 0 }
     },
     hq: 10,
     baseEffects: [
@@ -222,14 +211,15 @@ export const BuildingData = [
       }
     ],
     requires: "KNIGHT_TRAINING_CENTER",
-    unique: false
+    unique: false,
+    tiers: 2
   },
   {
     name: "GUARDIAN_TRAINING_CENTER",
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 1000, start: 0 },
-      worker: { value: 15, start: 0 }
+      worker: { value: 5, start: 0 }
     },
     hq: 10,
     baseEffects: [
@@ -240,7 +230,8 @@ export const BuildingData = [
       }
     ],
     requires: "GUARDIAN_TRAINING_CENTER",
-    unique: false
+    unique: false,
+    tiers: 2
   },
   {
     name: "GUARD_TOWER",
@@ -249,7 +240,7 @@ export const BuildingData = [
       iron: { value: 900, start: 0 },
       worker: { value: 10, start: 0 }
     },
-    hq: 12,
+    hq: 10,
     baseEffects: [
       {
         type: "world",
@@ -262,8 +253,9 @@ export const BuildingData = [
         bonus: 3
       }
     ],
-    requires: "GUARD_TOWER",
-    unique: false
+    requires: null,
+    unique: false,
+    tiers: 2
   },
   {
     name: "ARENA",
@@ -272,7 +264,7 @@ export const BuildingData = [
       iron: { value: 1200, start: 0 },
       worker: { value: 30, start: 0 }
     },
-    hq: 12,
+    hq: 10,
     baseEffects: [
       {
         type: "world",
@@ -300,17 +292,18 @@ export const BuildingData = [
         bonus: 3
       }
     ],
-    requires: "ARENA",
-    unique: false
+    requires: null,
+    unique: false,
+    tiers: 3
   },
   {
     name: "MERCENARY_OFFICE",
     cost: {
-      wood: { value: 350, start: 0 },
-      iron: { value: 350, start: 0 },
-      worker: { value: 12, start: 0 }
+      wood: { value: 150, start: 0 },
+      iron: { value: 150, start: 0 },
+      worker: { value: 10, start: 0 }
     },
-    hq: 12,
+    hq: 10,
     baseEffects: [
       {
         type: "production",
@@ -321,20 +314,11 @@ export const BuildingData = [
         type: "production",
         subtype: "workers",
         base: 0.1
-      },
-      {
-        type: "production",
-        subtype: "iron",
-        bonus: -3
-      },
-      {
-        type: "production",
-        subtype: "wood",
-        bonus: -3
       }
     ],
-    requires: "MERCENARY_OFFICE",
-    unique: false
+    requires: null,
+    unique: false,
+    tiers: 4
   },
   {
     name: "TOWN_HALL",
@@ -343,7 +327,7 @@ export const BuildingData = [
       iron: { value: 600, start: 0 },
       worker: { value: 15, start: 0 }
     },
-    hq: 12,
+    hq: 10,
     baseEffects: [
       {
         type: "production",
@@ -366,8 +350,62 @@ export const BuildingData = [
         bonus: 8
       }
     ],
-    requires: "TOWN_HALL",
-    unique: false
+    requires: null,
+    unique: false,
+    tiers: 3
+  },
+  {
+    name: "GUILD_HALL",
+    cost: {
+      wood: { value: 1200, start: 0 },
+      iron: { value: 800, start: 0 },
+      worker: { value: 25, start: 0 }
+    },
+    hq: 10,
+    baseEffects: [
+      {
+        type: "world",
+        subtype: "worker",
+        bonus: 3
+      },
+      {
+        type: "production",
+        subtype: "workers",
+        bonus: 3
+      },
+      {
+        type: "storage",
+        subtype: "workers",
+        bonus: 3
+      }
+    ],
+    requires: null,
+    unique: false,
+    tiers: 3
+  },
+  {
+    name: "GARRISON_HALL",
+    cost: {
+      wood: { value: 500, start: 0 },
+      iron: { value: 500, start: 0 },
+      worker: { value: 20, start: 0 }
+    },
+    hq: 10,
+    baseEffects: [
+      {
+        type: "storage",
+        subtype: "soldiers",
+        base: 500
+      },
+      {
+        type: "storage",
+        subtype: "workers",
+        base: 1000
+      }
+    ],
+    requires: null,
+    unique: false,
+    tiers: 4
   }
 ] as const;
 

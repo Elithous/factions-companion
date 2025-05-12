@@ -8,6 +8,9 @@ export type ScalingTypes = typeof ScalingValues[number];
 export const MultiplierValues = ['wood', 'iron', 'workers', 'soldiers', 'knight', 'guardian'] as const;
 export type MultiplierTypes = typeof MultiplierValues[number];
 
+export const StorageValues = ['wood', 'iron', 'soldiers', 'workers'] as const;
+export type StorageTypes = typeof StorageValues[number];
+
 export const WorldEffectValues = ['attack', 'defense'] as const;
 export type WorldEffectTypes = typeof WorldEffectValues[number];
 
@@ -18,6 +21,9 @@ export interface GameConfig {
   },
   prod_multi: {
     [key in MultiplierTypes]: { final: number, percent: number }
+  },
+  storage_multi: {
+    [key in StorageTypes]: { final: number, percent: number }
   },
   world_multi: {
     [key in WorldEffectTypes]: { final: number, percent: number }
@@ -36,8 +42,14 @@ export const defaultConfig: GameConfig = {
     iron: { final: 1, percent: 0 },
     workers: { final: 1, percent: 0 },
     soldiers: { final: 1, percent: 0 },
+    knight: { final: 1, percent: 0 },
     guardian: { final: 1, percent: 0 },
-    knight: { final: 1, percent: 0 }
+  },
+  storage_multi: {
+    wood: { final: 1, percent: 0 },
+    iron: { final: 1, percent: 0 },
+    soldiers: { final: 1, percent: 0 },
+    workers: { final: 1, percent: 0 }
   },
   world_multi: {
     attack: { final: 1, percent: 0 },
@@ -71,7 +83,11 @@ export function isValidConfig(config: GameConfig) {
       config.world_multi.attack.percent !== undefined &&
       config.world_multi.attack.final !== undefined &&
       config.world_multi.defense.percent !== undefined &&
-      config.world_multi.defense.final !== undefined;
+      config.world_multi.defense.final !== undefined &&
+      config.storage_multi.iron !== undefined &&
+      config.storage_multi.wood !== undefined &&
+      config.storage_multi.soldiers !== undefined &&
+      config.storage_multi.workers !== undefined;
 
       return valid;
   } catch {
@@ -234,7 +250,7 @@ export function getBuildOverlap(start: Building[], end: Building[]): Building[] 
   return overlap;
 }
 
-export function getTotalModifiers(buildings: Building[]) {
+export function getTotalProductionModifiers(buildings: Building[]) {
   const totalMods: { [key in MultiplierTypes]: { bonus: number } } = {
     wood: { bonus: 0 },
     iron: { bonus: 0 },
@@ -260,9 +276,78 @@ export function getTotalModifiers(buildings: Building[]) {
   return totalMods;
 }
 
+export function getTotalStorageModifiers(buildings: Building[]) {
+  const totalMods: { [key in StorageTypes]: { bonus: number } } = {
+    wood: { bonus: 0 },
+    iron: { bonus: 0 },
+    workers: { bonus: 0 },
+    soldiers: { bonus: 0 }
+  };
+
+  buildings.forEach(building => {
+    if (!building.type) return;
+    const buildingData = BuildingData.find(data => data.name === building.type);
+
+    buildingData?.baseEffects.forEach(effect => {
+      if (effect.type === 'storage' && 'bonus' in effect) {
+        const bonusEffect = effect.bonus * building.count * building.level;
+
+        totalMods[effect.subtype].bonus += bonusEffect;
+      }
+    });
+  });
+
+  return totalMods;
+}
+
+export function getTotalStorage(buildings: Building[], config: GameConfig | undefined) {
+  const bonuses = getTotalStorageModifiers(buildings);
+  const buildingConfig: GameConfig = structuredClone(config ?? defaultConfig);
+
+  StorageValues.forEach(value => {
+    buildingConfig.storage_multi[value].percent += bonuses[value].bonus;
+  });
+
+  const totalStorage: { [key in StorageTypes]: { base: number, final: number } } = {
+    wood: { base: 0, final: 0 },
+    iron: { base: 0, final: 0 },
+    workers: { base: 0, final: 0 },
+    soldiers: { base: 0, final: 0 }
+  };
+
+  // Add base wood output from HQ first
+  const allMulties = buildingConfig?.storage_multi;
+  totalStorage.wood.base += 150;
+  totalStorage.wood.final += (totalStorage.wood.base + (allMulties?.wood?.percent ?? 0) / 100) * (allMulties?.wood?.final ?? 1);
+  totalStorage.iron.base += 150;
+  totalStorage.iron.final += (totalStorage.iron.base + (allMulties?.iron?.percent ?? 0) / 100) * (allMulties?.iron?.final ?? 1);
+  totalStorage.soldiers.base += 50;
+  totalStorage.soldiers.final += (totalStorage.soldiers.base + (allMulties?.soldiers.percent ?? 0) / 100) * (allMulties?.soldiers?.final ?? 1);
+  totalStorage.workers.base += 50;
+  totalStorage.workers.final += (totalStorage.workers.base + (allMulties.workers?.percent ?? 0) / 100) * (allMulties?.workers?.final ?? 1);
+
+  buildings.forEach(building => {
+    if (!building.type) return;
+    const buildingData = BuildingData.find(data => data.name === building.type);
+
+    buildingData?.baseEffects.forEach(effect => {
+      if (effect.type === 'storage' && 'base' in effect) {
+        const multis = allMulties?.[effect.subtype];
+
+        const baseEffect = effect.base * building.count * building.level;
+        const totalEffect = (baseEffect * (1 + (multis?.percent ?? 0) / 100)) * (multis?.final ?? 1);
+        totalStorage[effect.subtype].base += baseEffect;
+        totalStorage[effect.subtype].final += totalEffect;
+      }
+    });
+  });
+
+  return totalStorage;
+}
+
 export function getTotalOutput(buildings: Building[], config: GameConfig | undefined) {
   // TODO: Modify multiplier values based on existing buildings?
-  const bonuses = getTotalModifiers(buildings);
+  const bonuses = getTotalProductionModifiers(buildings);
   const buildingConfig: GameConfig = structuredClone(config ?? defaultConfig);
 
   MultiplierValues.forEach(value => {

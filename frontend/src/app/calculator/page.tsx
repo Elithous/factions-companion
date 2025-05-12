@@ -8,7 +8,7 @@ import CalculatorConfigComponent from "./_components/config";
 import BuildingsDisplayComponent from './_components/buildingsDisplay';
 import BuildTips from './_components/buildTips';
 import { Building } from '../../utils/game/building.model';
-import { GameConfig, WorldEffectTypes, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierTypes, MultiplierValues, ScalingTypes, ScalingValues } from '@/utils/game/game.helper';
+import { GameConfig, WorldEffectTypes, getBuildOverlap, getTotalCosts, getTotalOutput, isValidConfig, MultiplierTypes, MultiplierValues, ScalingTypes, ScalingValues, StorageValues, StorageTypes, getTotalStorage } from '@/utils/game/game.helper';
 import { BuildingData } from '@/utils/game/building.model';
 
 // Types
@@ -71,7 +71,8 @@ export default function CalculatorPage() {
   const [tickCost, setTickCost] = useState('N/A');
   const [tickBreakdown, setTickBreakdown] = useState<ReactElement | undefined>();
   const [costTable, setCostTable] = useState<ReactElement[]>([]);
-  const [outputTable, setOutputTable] = useState<ReactElement[]>([]);
+  const [currentOutputTable, setCurrentOutputTable] = useState<ReactElement[]>([]);
+  const [goalOutputTable, setGoalOutputTable] = useState<ReactElement[]>([]);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [importText, setImportText] = useState('');
@@ -79,6 +80,63 @@ export default function CalculatorPage() {
   const [importError, setImportError] = useState('');
 
   // Handlers
+  const generateOutputTable = (buildings: Building[], config: GameConfig | undefined) => {
+    if (!config) return [];
+
+    const output = getTotalOutput(buildings, config);
+    const storageTotals = getTotalStorage(buildings, config);
+    const worldEffects = getTotalWorldEffects(buildings);
+
+    // Calculate effective soldiers (soldiers with attack/defense bonus)
+    const soldierOutput = output.soldiers.final;
+
+    // Apply world effects and config multipliers for attack and defense
+    const attackConfig = config.world_multi.attack;
+    const defenseConfig = config.world_multi.defense;
+
+    // Calculate base building bonus percentage (from Guard Towers, etc.)
+    const attackBuildingBonus = worldEffects.attack;
+    const defenseBuildingBonus = worldEffects.defense;
+
+    // Apply the config percentage bonus on top of building bonus
+    const totalAttackPercent = attackBuildingBonus + attackConfig.percent;
+    const totalDefensePercent = defenseBuildingBonus + defenseConfig.percent;
+
+    // Calculate final effective soldiers with percentage and final multipliers
+    const effectiveAttackSoldiers = soldierOutput * (1 + totalAttackPercent / 100) * attackConfig.final;
+    const effectiveDefenseSoldiers = soldierOutput * (1 + totalDefensePercent / 100) * defenseConfig.final;
+
+    const updatedOutputTable: ReactElement[] = MultiplierValues.map(value => (
+      <Table.Tr key={value}>
+        <Table.Td>{`${value[0].toUpperCase()}${value.substring(1)}`}</Table.Td>
+        <Table.Td>{output[value].base.toFixed(2)}</Table.Td>
+        <Table.Td>{output[value].final.toFixed(2)}</Table.Td>
+        <Table.Td>{storageTotals[value as StorageTypes]?.final.toFixed(0)}</Table.Td>
+      </Table.Tr>
+    ));
+
+    // Add effective soldiers rows
+    updatedOutputTable.push(
+      <Table.Tr key="effective-attack-soldiers">
+        <Table.Td>Effective Attack</Table.Td>
+        <Table.Td>{soldierOutput.toFixed(2)}</Table.Td>
+        <Table.Td>{effectiveAttackSoldiers.toFixed(2)}</Table.Td>
+        <Table.Td></Table.Td>
+      </Table.Tr>
+    );
+
+    updatedOutputTable.push(
+      <Table.Tr key="effective-defense-soldiers">
+        <Table.Td>Effective Defense</Table.Td>
+        <Table.Td>{soldierOutput.toFixed(2)}</Table.Td>
+        <Table.Td>{effectiveDefenseSoldiers.toFixed(2)}</Table.Td>
+        <Table.Td></Table.Td>
+      </Table.Tr>
+    );
+
+    return updatedOutputTable;
+  }
+
   const setCurrentResource = useCallback((resource: ScalingTypes, value: number) => {
     setCurrentResources(prev => ({
       ...prev,
@@ -283,57 +341,12 @@ export default function CalculatorPage() {
   }, [goalHq, goalBuild, currentHq, currentBuild, config, currentResources, setCurrentResource]);
 
   useEffect(() => {
-    if (!config) return;
-
-    const goalOutput = getTotalOutput(goalBuild, config);
-    const worldEffects = getTotalWorldEffects(goalBuild);
-
-    // Calculate effective soldiers (soldiers with attack/defense bonus)
-    const soldierOutput = goalOutput.soldiers.final;
-
-    // Apply world effects and config multipliers for attack and defense
-    const attackConfig = config.world_multi.attack;
-    const defenseConfig = config.world_multi.defense;
-
-    // Calculate base building bonus percentage (from Guard Towers, etc.)
-    const attackBuildingBonus = worldEffects.attack;
-    const defenseBuildingBonus = worldEffects.defense;
-
-    // Apply the config percentage bonus on top of building bonus
-    const totalAttackPercent = attackBuildingBonus + attackConfig.percent;
-    const totalDefensePercent = defenseBuildingBonus + defenseConfig.percent;
-
-    // Calculate final effective soldiers with percentage and final multipliers
-    const effectiveAttackSoldiers = soldierOutput * (1 + totalAttackPercent / 100) * attackConfig.final;
-    const effectiveDefenseSoldiers = soldierOutput * (1 + totalDefensePercent / 100) * defenseConfig.final;
-
-    const updatedOutputTable: ReactElement[] = MultiplierValues.map(value => (
-      <Table.Tr key={value}>
-        <Table.Td>{`${value[0].toUpperCase()}${value.substring(1)}`}</Table.Td>
-        <Table.Td>{goalOutput[value].base.toFixed(2)}</Table.Td>
-        <Table.Td>{goalOutput[value].final.toFixed(2)}</Table.Td>
-      </Table.Tr>
-    ));
-
-    // Add effective soldiers rows
-    updatedOutputTable.push(
-      <Table.Tr key="effective-attack-soldiers">
-        <Table.Td>Effective Attack</Table.Td>
-        <Table.Td>{soldierOutput.toFixed(2)}</Table.Td>
-        <Table.Td>{effectiveAttackSoldiers.toFixed(2)}</Table.Td>
-      </Table.Tr>
-    );
-
-    updatedOutputTable.push(
-      <Table.Tr key="effective-defense-soldiers">
-        <Table.Td>Effective Defense</Table.Td>
-        <Table.Td>{soldierOutput.toFixed(2)}</Table.Td>
-        <Table.Td>{effectiveDefenseSoldiers.toFixed(2)}</Table.Td>
-      </Table.Tr>
-    );
-
-    setOutputTable(updatedOutputTable);
+    setGoalOutputTable(generateOutputTable(goalBuild, config));
   }, [goalBuild, config]);
+
+  useEffect(() => {
+    setCurrentOutputTable(generateOutputTable(currentBuild, config));
+  }, [currentBuild, config]);
 
   // Render
   return (
@@ -407,51 +420,67 @@ export default function CalculatorPage() {
 
       <p className='title'>Totals</p>
       <Flex>
-        <div className='costs'>
-          <p className='title'>Cost</p>
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Td></Table.Td>
-                <Table.Td>Current</Table.Td>
-                <Table.Td>Needed</Table.Td>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {costTable}
-              <Table.Tr>
-                <Table.Td>Ticks:</Table.Td>
-                <Table.Td></Table.Td>
-                <Table.Td>
-                  <Group justify="right">
-                    <HoverCard width={280} shadow="md" disabled={!tickBreakdown}>
-                      <HoverCard.Target>
-                        <Text size='sm' style={{ textDecoration: 'underline dotted' }}>{tickCost}</Text>
-                      </HoverCard.Target>
-                      <HoverCard.Dropdown>
-                        {tickBreakdown}
-                      </HoverCard.Dropdown>
-                    </HoverCard>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            </Table.Tbody>
-          </Table>
-        </div>
-        <div className='outputs'>
-          <p className='title'>Output</p>
+      <div className='current outputs'>
+          <p className='title'>Current Output</p>
           <Table>
             <Table.Thead>
               <Table.Tr>
                 <Table.Td></Table.Td>
                 <Table.Td>Base</Table.Td>
                 <Table.Td>Total</Table.Td>
+                <Table.Td>Storage</Table.Td>
               </Table.Tr>
             </Table.Thead>
-            <Table.Tbody>{outputTable}</Table.Tbody>
+            <Table.Tbody>{currentOutputTable}</Table.Tbody>
+          </Table>
+        </div>
+        <div className='goal outputs'>
+          <p className='title'>Goal Output</p>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Td></Table.Td>
+                <Table.Td>Base</Table.Td>
+                <Table.Td>Total</Table.Td>
+                <Table.Td>Storage</Table.Td>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>{goalOutputTable}</Table.Tbody>
           </Table>
         </div>
       </Flex>
+
+      <div className='costs'>
+        <p className='title'>Cost</p>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Td></Table.Td>
+              <Table.Td>Current</Table.Td>
+              <Table.Td>Needed</Table.Td>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {costTable}
+            <Table.Tr>
+              <Table.Td>Ticks:</Table.Td>
+              <Table.Td></Table.Td>
+              <Table.Td>
+                <Group justify="right">
+                  <HoverCard width={280} shadow="md" disabled={!tickBreakdown}>
+                    <HoverCard.Target>
+                      <Text size='sm' style={{ textDecoration: 'underline dotted' }}>{tickCost}</Text>
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown>
+                      {tickBreakdown}
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                </Group>
+              </Table.Td>
+            </Table.Tr>
+          </Table.Tbody>
+        </Table>
+      </div>
 
       <BuildTips
         currentBuild={currentBuild}
