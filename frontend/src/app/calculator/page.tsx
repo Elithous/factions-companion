@@ -146,10 +146,10 @@ export default function CalculatorPage() {
 
   const handleSwapBuildings = useCallback((direction: 'forward' | 'backward') => {
     if (direction === 'forward') {
-      setGoalBuild([...currentBuild]);
+      setGoalBuild(structuredClone(currentBuild));
       setGoalHq(currentHq);
     } else {
-      setCurrentBuild([...goalBuild]);
+      setCurrentBuild(structuredClone(goalBuild));
       setCurrentHq(goalHq);
     }
   }, [currentBuild, currentHq, goalBuild, goalHq]);
