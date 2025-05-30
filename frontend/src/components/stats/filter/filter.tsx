@@ -97,8 +97,8 @@ export default function FilterComponent(props: StatsProps) {
     const fetchPlayers = async () => {
       if (!props.gameId) return;
       try {
-        let players = await fetchBackend('report/player/active', { gameId: props.gameId }).then(resp => resp.json());
-        
+        const players = await fetchBackend('report/player/active', { gameId: props.gameId }).then(resp => resp.json());
+
         setPlayerList(players
           .map((p: { player_name: string }) => p.player_name)
           .sort((a: string, b: string) => a.localeCompare(b)));
