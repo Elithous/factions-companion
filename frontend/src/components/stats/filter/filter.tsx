@@ -1,11 +1,12 @@
 'use client'
 
-import { Flex, Radio, RangeSlider, Text, Stack, Group, ActionIcon, Tooltip, Button, Autocomplete } from '@mantine/core';
+import { Flex, Radio, RangeSlider, Text, Stack, Group, ActionIcon, Tooltip, Button, Select } from '@mantine/core';
 import { IconRefresh, IconFilter, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import './filter.scss';
 
 import { useEffect, useState, useCallback } from "react";
 import { DateTimePicker } from '@mantine/dates';
+import { fetchBackend } from '@/utils/api.helper';
 
 export interface StatsFilter {
   type?: 'soldiers' | 'workers' | 'special';
@@ -13,10 +14,10 @@ export interface StatsFilter {
   playerName?: string;
   fromFaction?: 'blue' | 'green' | 'red' | 'yellow';
   dateRange?: [number, number];
-  gameId?: string;
 }
 
 export interface StatsProps {
+  gameId: string;
   dateRange: [number, number];
   filter: StatsFilter;
   updateFilter: (rule: StatsFilter) => void;
@@ -38,7 +39,7 @@ const TYPE_OPTIONS = [
 ] as const;
 
 export default function FilterComponent(props: StatsProps) {
-  const [player, setPlayer] = useState('');
+  const [player, setPlayer] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<[number, number]>(props.dateRange);
   const [dateStart, setDateStart] = useState<number>(props.dateRange?.[0]);
   const [dateEnd, setDateEnd] = useState<number>(props.dateRange?.[1]);
@@ -51,18 +52,9 @@ export default function FilterComponent(props: StatsProps) {
 
   useEffect(() => {
     if (!props.filter.playerName) {
-      setPlayer('');
+      setPlayer(null);
     }
   }, [props.filter]);
-
-  // Debounced player name update
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      props.updateFilter({ playerName: player });
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [player]);
 
   useEffect(() => {
     setDateStart(dateRange[0]);
@@ -91,7 +83,7 @@ export default function FilterComponent(props: StatsProps) {
   }, dateRange);
 
   const handleReset = useCallback(() => {
-    setPlayer('');
+    setPlayer(null);
     setDateRange(props.dateRange);
     props.onReset?.();
   }, [props.dateRange, props.onReset]);
@@ -103,23 +95,28 @@ export default function FilterComponent(props: StatsProps) {
   // Fetch player list when component mounts
   useEffect(() => {
     const fetchPlayers = async () => {
+      if (!props.gameId) return;
       try {
-        const response = await fetch(`/api/reports/player/active?gameId=${props.filter.gameId}`);
-        if (!response.ok) throw new Error('Failed to fetch players');
-        const players = await response.json();
-        setPlayerList(players.map((p: { player_name: string }) => ({
-          value: p.player_name,
-          label: p.player_name
-        })));
+        let players = await fetchBackend('report/player/active', { gameId: props.gameId }).then(resp => resp.json());
+        
+        setPlayerList(players
+          .map((p: { player_name: string }) => p.player_name)
+          .sort((a: string, b: string) => a.localeCompare(b)));
       } catch (error) {
         console.error('Error fetching players:', error);
       }
     };
 
-    if (props.filter.gameId) {
+    console.log(props);
+    if (props.gameId) {
       fetchPlayers();
     }
-  }, [props.filter.gameId]);
+  }, [props.gameId]);
+
+  // Update filter when player selection changes
+  useEffect(() => {
+    props.updateFilter({ playerName: player || '' });
+  }, [player]);
 
   return (
     <div className='filters-container'>
@@ -172,13 +169,14 @@ export default function FilterComponent(props: StatsProps) {
 
           <div className='player-filter filter'>
             <label htmlFor='name-input'>Player Name</label>
-            <Autocomplete
+            <Select
               id='name-input'
               value={player}
               onChange={setPlayer}
               data={playerList}
-              placeholder="Search player..."
-              limit={10}
+              placeholder="Select player..."
+              searchable
+              clearable
               maxDropdownHeight={200}
             />
           </div>

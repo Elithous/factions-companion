@@ -241,6 +241,7 @@ export default function StatsPage() {
             </div>
 
             <FilterComponent
+              gameId={gameId}
               filter={filter}
               updateFilter={updateFilter}
               dateRange={dateRanges || [0, 0]}
