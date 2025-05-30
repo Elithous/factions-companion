@@ -1,6 +1,6 @@
 'use client'
 
-import { Flex, Radio, RangeSlider, Text, Stack, Group, ActionIcon, Tooltip, Button } from '@mantine/core';
+import { Flex, Radio, RangeSlider, Text, Stack, Group, ActionIcon, Tooltip, Button, Autocomplete } from '@mantine/core';
 import { IconRefresh, IconFilter, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import './filter.scss';
 
@@ -13,6 +13,7 @@ export interface StatsFilter {
   playerName?: string;
   fromFaction?: 'blue' | 'green' | 'red' | 'yellow';
   dateRange?: [number, number];
+  gameId?: string;
 }
 
 export interface StatsProps {
@@ -42,6 +43,7 @@ export default function FilterComponent(props: StatsProps) {
   const [dateStart, setDateStart] = useState<number>(props.dateRange?.[0]);
   const [dateEnd, setDateEnd] = useState<number>(props.dateRange?.[1]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [playerList, setPlayerList] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
     setDateRange(props.dateRange);
@@ -98,6 +100,27 @@ export default function FilterComponent(props: StatsProps) {
     setIsExpanded(prev => !prev);
   }, []);
 
+  // Fetch player list when component mounts
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const response = await fetch(`/api/reports/player/active?gameId=${props.filter.gameId}`);
+        if (!response.ok) throw new Error('Failed to fetch players');
+        const players = await response.json();
+        setPlayerList(players.map((p: { player_name: string }) => ({
+          value: p.player_name,
+          label: p.player_name
+        })));
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      }
+    };
+
+    if (props.filter.gameId) {
+      fetchPlayers();
+    }
+  }, [props.filter.gameId]);
+
   return (
     <div className='filters-container'>
       <Group justify="space-between" mb="md">
@@ -149,12 +172,14 @@ export default function FilterComponent(props: StatsProps) {
 
           <div className='player-filter filter'>
             <label htmlFor='name-input'>Player Name</label>
-            <input 
-              id='name-input' 
-              type='text' 
-              value={player} 
-              onChange={(e) => setPlayer(e.target.value)}
+            <Autocomplete
+              id='name-input'
+              value={player}
+              onChange={setPlayer}
+              data={playerList}
               placeholder="Search player..."
+              limit={10}
+              maxDropdownHeight={200}
             />
           </div>
         </div>
