@@ -417,4 +417,5 @@ export interface Building {
   type: BuildingNameType | null
   count: number
   level: number
+  sortOrder?: number
 }
