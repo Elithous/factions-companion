@@ -1,6 +1,7 @@
 export const BuildingData = [
   {
     name: "WOODCUTTER",
+    category: ["ECONOMY"],
     cost: {
       wood: { value: 40, start: 0 },
       iron: { value: 0, start: 0 },
@@ -16,10 +17,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "MINE",
+    category: ["ECONOMY"],
     cost: {
       wood: { value: 40, start: 1 },
       iron: { value: 10, start: 2 },
@@ -35,10 +39,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "SAWMILL",
+    category: ["ECONOMY"],
     cost: {
       wood: { value: 150, start: 0 },
       iron: { value: 37, start: 0 },
@@ -54,7 +61,7 @@ export const BuildingData = [
       {
         type: "production",
         subtype: "wood",
-        bonus: 3
+        multiplier: 1.01
       },
       {
         type: "storage",
@@ -64,10 +71,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 2
+    tiers: 2,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "FURNACE",
+    category: ["ECONOMY"],
     cost: {
       wood: { value: 150, start: 0 },
       iron: { value: 37, start: 0 },
@@ -83,7 +93,7 @@ export const BuildingData = [
       {
         type: "production",
         subtype: "iron",
-        bonus: 3
+        multiplier: 1.01
       },
       {
         type: "storage",
@@ -93,10 +103,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 2
+    tiers: 2,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "STORAGE",
+    category: ["ECONOMY"],
     cost: {
       wood: { value: 80, start: 0 },
       iron: { value: 20, start: 0 },
@@ -117,10 +130,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "TRAINING_CENTER",
+    category: ["MILITARY"],
     cost: {
       wood: { value: 100, start: 0 },
       iron: { value: 150, start: 0 },
@@ -136,10 +152,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "BARRACK",
+    category: ["MILITARY"],
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 500, start: 0 },
@@ -155,10 +174,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "TAVERN",
+    category: ["WORKER"],
     cost: {
       wood: { value: 150, start: 0 },
       iron: { value: 100, start: 0 },
@@ -174,10 +196,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "HOUSE",
+    category: ["WORKER"],
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 400, start: 0 },
@@ -193,10 +218,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 1
+    tiers: 1,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "KNIGHT_TRAINING_CENTER",
+    category: ["SUPPORT"],
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 1000, start: 0 },
@@ -212,10 +240,13 @@ export const BuildingData = [
     ],
     requires: "KNIGHT_TRAINING_CENTER",
     unique: false,
-    tiers: 2
+    tiers: 2,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "GUARDIAN_TRAINING_CENTER",
+    category: ["SUPPORT"],
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 1000, start: 0 },
@@ -231,10 +262,13 @@ export const BuildingData = [
     ],
     requires: "GUARDIAN_TRAINING_CENTER",
     unique: false,
-    tiers: 2
+    tiers: 2,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "GUARD_TOWER",
+    category: ["MILITARY"],
     cost: {
       wood: { value: 400, start: 0 },
       iron: { value: 900, start: 0 },
@@ -255,10 +289,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 2
+    tiers: 2,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "ARENA",
+    category: ["MILITARY", "SUPPORT"],
     cost: {
       wood: { value: 600, start: 0 },
       iron: { value: 1200, start: 0 },
@@ -269,35 +306,107 @@ export const BuildingData = [
       {
         type: "world",
         subtype: "guardianPower",
-        bonus: 3
+        multiplier: 1.03
       },
       {
         type: "production",
         subtype: "guardian",
-        bonus: 3
+        multiplier: 1.01
       },
       {
         type: "world",
         subtype: "knightPower",
-        bonus: 3
+        multiplier: 1.03
       },
       {
         type: "production",
         subtype: "knight",
-        bonus: 3
+        multiplier: 1.01
       },
       {
         type: "production",
         subtype: "soldiers",
-        bonus: 3
+        multiplier: 1.01
       }
     ],
     requires: null,
     unique: false,
-    tiers: 3
+    tiers: 3,
+    destructible: true,
+    upgradeable: true
+  },
+  {
+    name: "GUILD_HALL",
+    category: ["WORKER"],
+    cost: {
+      wood: { value: 1200, start: 0 },
+      iron: { value: 800, start: 0 },
+      worker: { value: 25, start: 0 }
+    },
+    hq: 10,
+    baseEffects: [
+      {
+        type: "world",
+        subtype: "worker",
+        multiplier: 1.01
+      },
+      {
+        type: "production",
+        subtype: "workers",
+        multiplier: 1.01
+      },
+      {
+        type: "storage",
+        subtype: "workers",
+        base: 300
+      }
+    ],
+    requires: null,
+    unique: false,
+    tiers: 3,
+    destructible: true,
+    upgradeable: true
+  },
+  {
+    name: "TOWN_HALL",
+    category: ["ECONOMY"],
+    cost: {
+      wood: { value: 1000, start: 0 },
+      iron: { value: 600, start: 0 },
+      worker: { value: 15, start: 0 }
+    },
+    hq: 10,
+    baseEffects: [
+      {
+        type: "production",
+        subtype: "wood",
+        multiplier: 1.03
+      },
+      {
+        type: "production",
+        subtype: "iron",
+        multiplier: 1.03
+      },
+      {
+        type: "storage",
+        subtype: "wood",
+        multiplier: 1.03
+      },
+      {
+        type: "storage",
+        subtype: "iron",
+        multiplier: 1.03
+      }
+    ],
+    requires: null,
+    unique: false,
+    tiers: 3,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "MERCENARY_OFFICE",
+    category: ["MILITARY", "WORKER"],
     cost: {
       wood: { value: 150, start: 0 },
       iron: { value: 150, start: 0 },
@@ -318,73 +427,13 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 4
-  },
-  {
-    name: "TOWN_HALL",
-    cost: {
-      wood: { value: 1000, start: 0 },
-      iron: { value: 600, start: 0 },
-      worker: { value: 15, start: 0 }
-    },
-    hq: 10,
-    baseEffects: [
-      {
-        type: "production",
-        subtype: "wood",
-        bonus: 5
-      },
-      {
-        type: "production",
-        subtype: "iron",
-        bonus: 5
-      },
-      {
-        type: "storage",
-        subtype: "wood",
-        bonus: 8
-      },
-      {
-        type: "storage",
-        subtype: "iron",
-        bonus: 8
-      }
-    ],
-    requires: null,
-    unique: false,
-    tiers: 3
-  },
-  {
-    name: "GUILD_HALL",
-    cost: {
-      wood: { value: 1200, start: 0 },
-      iron: { value: 800, start: 0 },
-      worker: { value: 25, start: 0 }
-    },
-    hq: 10,
-    baseEffects: [
-      {
-        type: "world",
-        subtype: "worker",
-        bonus: 3
-      },
-      {
-        type: "production",
-        subtype: "workers",
-        bonus: 3
-      },
-      {
-        type: "storage",
-        subtype: "workers",
-        bonus: 3
-      }
-    ],
-    requires: null,
-    unique: false,
-    tiers: 3
+    tiers: 4,
+    destructible: true,
+    upgradeable: true
   },
   {
     name: "GARRISON_HALL",
+    category: ["MILITARY", "WORKER"],
     cost: {
       wood: { value: 500, start: 0 },
       iron: { value: 500, start: 0 },
@@ -405,7 +454,47 @@ export const BuildingData = [
     ],
     requires: null,
     unique: false,
-    tiers: 4
+    tiers: 4,
+    destructible: true,
+    upgradeable: true
+  },
+  {
+    name: "MARKET",
+    category: ["ECONOMY"],
+    cost: {
+      wood: { value: 10000, start: 0 },
+      iron: { value: 10000, start: 0 },
+      worker: { value: 500, start: 0 }
+    },
+    hq: 10,
+    baseEffects: [],
+    requires: "MARKET",
+    unique: true,
+    tiers: 4,
+    destructible: true,
+    upgradeable: false
+  },
+  {
+    name: "RECYCLING_WORKSHOP",
+    category: ["ECONOMY"],
+    cost: {
+      wood: { value: 10000, start: 0 },
+      iron: { value: 10000, start: 0 },
+      worker: { value: 500, start: 0 }
+    },
+    hq: 10,
+    baseEffects: [
+      {
+        type: "buildings",
+        subtype: "recycling",
+        bonus: 40
+      }
+    ],
+    requires: null,
+    unique: true,
+    tiers: 4,
+    destructible: false,
+    upgradeable: false
   }
 ] as const;
 
