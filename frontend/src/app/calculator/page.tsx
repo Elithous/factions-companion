@@ -42,7 +42,10 @@ function getTotalWorldEffects(buildings: Building[]) {
   // Initialize with all world effect types from the imported type
   const totalEffects: { [key in WorldEffectTypes]: number } = {
     attack: 0,
-    defense: 0
+    defense: 0,
+    worker: 0,
+    guardianPower: 0,
+    knightPower: 0
   };
 
   buildings.forEach(building => {

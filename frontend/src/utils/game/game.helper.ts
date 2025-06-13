@@ -11,7 +11,7 @@ export type MultiplierTypes = typeof MultiplierValues[number];
 export const StorageValues = ['wood', 'iron', 'soldiers', 'workers'] as const;
 export type StorageTypes = typeof StorageValues[number];
 
-export const WorldEffectValues = ['attack', 'defense'] as const;
+export const WorldEffectValues = ['attack', 'defense', 'guardianPower', 'knightPower', 'worker'] as const;
 export type WorldEffectTypes = typeof WorldEffectValues[number];
 
 export interface GameConfig {
@@ -53,7 +53,10 @@ export const defaultConfig: GameConfig = {
   },
   world_multi: {
     attack: { final: 1, percent: 0 },
-    defense: { final: 1, percent: 0 }
+    defense: { final: 1, percent: 0 },
+    guardianPower: { final: 1, percent: 0 },
+    knightPower: { final: 1, percent: 0 },
+    worker: { final: 1, percent: 0 }
   },
   useCostChange: false,
   costChange: 0
@@ -251,13 +254,13 @@ export function getBuildOverlap(start: Building[], end: Building[]): Building[] 
 }
 
 export function getTotalProductionModifiers(buildings: Building[]) {
-  const totalMods: { [key in MultiplierTypes]: { bonus: number } } = {
-    wood: { bonus: 0 },
-    iron: { bonus: 0 },
-    workers: { bonus: 0 },
-    soldiers: { bonus: 0 },
-    guardian: { bonus: 0 },
-    knight: { bonus: 0 }
+  const totalMods: { [key in MultiplierTypes]: { bonus: number, multiplier: number } } = {
+    wood: { bonus: 0, multiplier: 1 },
+    iron: { bonus: 0, multiplier: 1 },
+    workers: { bonus: 0, multiplier: 1 },
+    soldiers: { bonus: 0, multiplier: 1 },
+    guardian: { bonus: 0, multiplier: 1 },
+    knight: { bonus: 0, multiplier: 1 }
   };
 
   buildings.forEach(building => {
@@ -265,10 +268,15 @@ export function getTotalProductionModifiers(buildings: Building[]) {
     const buildingData = BuildingData.find(data => data.name === building.type);
 
     buildingData?.baseEffects.forEach(effect => {
-      if (effect.type === 'production' && 'bonus' in effect) {
-        const bonusEffect = effect.bonus * building.count * building.level;
-
-        totalMods[effect.subtype].bonus += bonusEffect;
+      if (effect.type === 'production') {
+        if ('bonus' in effect && typeof effect.bonus === 'number') {
+          const bonusEffect = effect.bonus * building.count * building.level;
+          totalMods[effect.subtype].bonus += bonusEffect;
+        }
+        if ('multiplier' in effect && typeof effect.multiplier === 'number') {
+          const multiplierEffect = (effect.multiplier - 1) * building.count * building.level;
+          totalMods[effect.subtype].multiplier *= (1 + multiplierEffect);
+        }
       }
     });
   });
@@ -277,11 +285,11 @@ export function getTotalProductionModifiers(buildings: Building[]) {
 }
 
 export function getTotalStorageModifiers(buildings: Building[]) {
-  const totalMods: { [key in StorageTypes]: { bonus: number } } = {
-    wood: { bonus: 0 },
-    iron: { bonus: 0 },
-    workers: { bonus: 0 },
-    soldiers: { bonus: 0 }
+  const totalMods: { [key in StorageTypes]: { bonus: number, multiplier: number } } = {
+    wood: { bonus: 0, multiplier: 1 },
+    iron: { bonus: 0, multiplier: 1 },
+    workers: { bonus: 0, multiplier: 1 },
+    soldiers: { bonus: 0, multiplier: 1 }
   };
 
   buildings.forEach(building => {
@@ -289,10 +297,15 @@ export function getTotalStorageModifiers(buildings: Building[]) {
     const buildingData = BuildingData.find(data => data.name === building.type);
 
     buildingData?.baseEffects.forEach(effect => {
-      if (effect.type === 'storage' && 'bonus' in effect) {
-        const bonusEffect = effect.bonus * building.count * building.level;
-
-        totalMods[effect.subtype].bonus += bonusEffect;
+      if (effect.type === 'storage') {
+        if ('bonus' in effect && typeof effect.bonus === 'number') {
+          const bonusEffect = effect.bonus * building.count * building.level;
+          totalMods[effect.subtype].bonus += bonusEffect;
+        }
+        if ('multiplier' in effect && typeof effect.multiplier === 'number') {
+          const multiplierEffect = (effect.multiplier - 1) * building.count * building.level;
+          totalMods[effect.subtype].multiplier *= (1 + multiplierEffect);
+        }
       }
     });
   });
@@ -306,6 +319,7 @@ export function getTotalStorage(buildings: Building[], config: GameConfig | unde
 
   StorageValues.forEach(value => {
     buildingConfig.storage_multi[value].percent += bonuses[value].bonus;
+    buildingConfig.storage_multi[value].final *= bonuses[value].multiplier;
   });
 
   const totalStorage: { [key in StorageTypes]: { base: number, final: number } } = {
@@ -352,6 +366,7 @@ export function getTotalOutput(buildings: Building[], config: GameConfig | undef
 
   MultiplierValues.forEach(value => {
     buildingConfig.prod_multi[value].percent += bonuses[value].bonus;
+    buildingConfig.prod_multi[value].final *= bonuses[value].multiplier;
   });
 
   const totalOutput: { [key in MultiplierTypes]: { base: number, final: number } } = {
@@ -385,4 +400,34 @@ export function getTotalOutput(buildings: Building[], config: GameConfig | undef
   });
 
   return totalOutput;
+}
+
+export function getTotalWorldModifiers(buildings: Building[]) {
+  const totalMods: { [key in WorldEffectTypes]: { bonus: number, multiplier: number } } = {
+    attack: { bonus: 0, multiplier: 1 },
+    defense: { bonus: 0, multiplier: 1 },
+    guardianPower: { bonus: 0, multiplier: 1 },
+    knightPower: { bonus: 0, multiplier: 1 },
+    worker: { bonus: 0, multiplier: 1 }
+  };
+
+  buildings.forEach(building => {
+    if (!building.type) return;
+    const buildingData = BuildingData.find(data => data.name === building.type);
+
+    buildingData?.baseEffects.forEach(effect => {
+      if (effect.type === 'world') {
+        if ('bonus' in effect && typeof effect.bonus === 'number') {
+          const bonusEffect = effect.bonus * building.count * building.level;
+          totalMods[effect.subtype].bonus += bonusEffect;
+        }
+        if ('multiplier' in effect && typeof effect.multiplier === 'number') {
+          const multiplierEffect = (effect.multiplier - 1) * building.count * building.level;
+          totalMods[effect.subtype].multiplier *= (1 + multiplierEffect);
+        }
+      }
+    });
+  });
+
+  return totalMods;
 }
