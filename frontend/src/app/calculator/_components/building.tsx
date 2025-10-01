@@ -1,15 +1,26 @@
 "use client"
 
 import { Button, CloseButton, Flex, NumberInput, Select, Paper } from '@mantine/core';
-import React, { useEffect, useState } from 'react';
-import { Building, BuildingNames, BuildingNameType } from '../../../utils/game/building.model';
-import { BuildingData } from '../../../utils/game/building.model';
+import React, { useEffect, useState, useRef } from 'react';
+import { Building, BuildingNames, BuildingNameType, BuildingData } from '../../../utils/game/building.model';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical } from '@tabler/icons-react';
 
+// Debounce hook
+function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
+  const callback = useRef(effect);
+  useEffect(() => {
+    callback.current = effect;
+  }, [effect]);
+  useEffect(() => {
+    const handler = setTimeout(() => callback.current(), delay);
+    return () => clearTimeout(handler);
+  }, [...deps, delay]);
+}
+
 export default function BuildingsComponent(props: { 
-  data: Building, 
+  data: Building,
   updateData: (row: Building) => void, 
   disableCount: boolean,
   id: string,
@@ -46,10 +57,13 @@ export default function BuildingsComponent(props: {
       if (buildingData?.unique) {
         setCountDisabled(true);
         setCount(1);
+      } else {
+        setCountDisabled(false);
       }
-      setCountDisabled(false);
     }
+  }, [type]);
 
+  useDebouncedEffect(() => {
     props.updateData({
       id: props.data.id,
       type,
@@ -57,7 +71,7 @@ export default function BuildingsComponent(props: {
       level: +level,
       sortOrder: props.data.sortOrder
     });
-  }, [type, count, level]);
+  }, [type, count, level], 300);
 
   useEffect(() => {
     setType(props.data.type);
