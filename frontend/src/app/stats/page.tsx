@@ -15,6 +15,7 @@ import { Container, Loader, Text, Paper, Stack, Group } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 
 import Beralich from '../../../public/maps/Beralich.png';
+import Doma from '../../../public/maps/Doma.png';
 import Necropolis from '../../../public/maps/Necropolis.png';
 import Rivers from '../../../public/maps/Rivers.png';
 import Smallworld from '../../../public/maps/Smallworld.png';
@@ -30,6 +31,7 @@ export interface ToFromFaction {
 
 const mapImageMap: { [mapName: string]: StaticImageData } = {
   Beralich,
+  Doma,
   Necropolis,
   Rivers,
   Smallworld,
