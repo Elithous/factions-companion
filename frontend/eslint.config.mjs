@@ -14,7 +14,8 @@ const eslintConfig = [
   ...compat.config({
     extends: ['next'],
     rules: {
-      'react-hooks/exhaustive-deps': 'off'
+      'react-hooks/exhaustive-deps': 'off',
+      '@typescript-eslint/no-explicit-any': 'off'
     }
   })
 ];
