@@ -1,0 +1,106 @@
+@use "../../app/globals.scss" as global;
+
+:root {
+  --player-stats-spacing: 1rem;
+  --timeline-height: 80px;
+}
+
+.selectors-section {
+  background-color: var(--orange-800);
+  border-radius: 0.5rem;
+}
+
+.game-stats-section {
+  background-color: var(--orange-800);
+  border-radius: 0.5rem;
+}
+
+.player-activities-stack {
+  padding-top: unset;
+  padding-bottom: unset;
+}
+
+.building-group-card {
+  background-color: var(--orange-800);
+  border-radius: 0.2rem;
+}
+
+.building-image-placeholder {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  background-color: var(--orange-900);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.build-timeline-container {
+  background-color: var(--orange-800);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin: 0;
+  border-radius: 0;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.timeline-bar-container {
+  width: 100%;
+  background-color: var(--orange-900);
+  border-radius: 0.5rem;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  user-select: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  
+  scroll-padding-top: 20px;
+//   // Hide scrollbar
+//   scrollbar-width: none; /* Firefox */
+//   -ms-overflow-style: none; /* IE and Edge */
+  
+//   &::-webkit-scrollbar {
+//     display: none; /* Chrome, Safari, Opera */
+//   }
+}
+
+.timeline-bar-content {
+  min-width: 100%;
+}
+
+.timeline-step {
+  &:hover {
+    opacity: 1 !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+  }
+
+  &.active {
+    border-color: #339af0 !important;
+    box-shadow: 0 0 0 2px rgba(51, 154, 240, 0.5);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .building-group-card {
+    .building-image-placeholder {
+      width: 60px;
+      height: 60px;
+      min-width: 60px;
+    }
+  }
+
+  .timeline-bar {
+    height: 60px;
+  }
+}
+

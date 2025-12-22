@@ -22,6 +22,7 @@ export default function Navbar() {
         <Link className="nav-item" href='/stats' onClick={() => setOpen(false)}>Stats</Link>
         <Link className="nav-item" href='/config' onClick={() => setOpen(false)}>Config</Link>
         <Link className="nav-item" href='/calculator' onClick={() => setOpen(false)}>Calculator</Link>
+        <Link className="nav-item" href='/playerStats' onClick={() => setOpen(false)}>Player Stats</Link>
       </nav>
     </div>
   )
