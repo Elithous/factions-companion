@@ -22,6 +22,7 @@ import Smallworld from '../../../public/maps/Smallworld.png';
 import Volbadihr from '../../../public/maps/Volbadihr.png';
 import Wetlands from '../../../public/maps/Wetlands.png';
 import Windmill from '../../../public/maps/Windmill.png';
+import Forgotten_Weald from '../../../public/maps/Forgotten_Weald.png';
 
 export interface ToFromFaction {
   [fromFaction: string]: {
@@ -37,7 +38,8 @@ const mapImageMap: { [mapName: string]: StaticImageData } = {
   Smallworld,
   Volbadihr,
   Wetlands,
-  Windmill
+  Windmill,
+  'Forgotten Weald': Forgotten_Weald
 }
 
 interface LoadingState {
