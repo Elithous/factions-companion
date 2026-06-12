@@ -113,6 +113,7 @@ export default function StatsPage() {
         tileY?: string;
         playerName?: string;
         fromFaction?: string;
+        toFaction?: string;
         dateStart?: string;
         dateEnd?: string;
       } = { gameId };
@@ -124,6 +125,7 @@ export default function StatsPage() {
       }
       if (filter?.playerName) params.playerName = filter.playerName;
       if (filter?.fromFaction) params.fromFaction = filter.fromFaction;
+      if (filter?.toFaction) params.toFaction = filter.toFaction;
       if (filter?.dateRange) {
         params.dateStart = (filter.dateRange[0] / 1000).toString();
         params.dateEnd = (filter.dateRange[1] / 1000).toString();

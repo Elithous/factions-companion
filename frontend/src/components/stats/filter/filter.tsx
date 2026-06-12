@@ -13,6 +13,7 @@ export interface StatsFilter {
   tile?: { x: number, y: number };
   playerName?: string;
   fromFaction?: 'blue' | 'green' | 'red' | 'yellow';
+  toFaction?: 'blue' | 'green' | 'red' | 'yellow';
   dateRange?: [number, number];
 }
 
@@ -153,11 +154,26 @@ export default function FilterComponent(props: StatsProps) {
         {/* Basic Filters */}
         <div className='basic-filters'>
           <div className='faction-filter filter'>
-            <label htmlFor='faction-select'>Faction</label>
+            <label htmlFor='from-faction-select'>From Faction</label>
             <select 
-              id='faction-select'
+              id='from-faction-select'
               value={props.filter?.fromFaction || ''}
               onChange={(e) => props.updateFilter({ fromFaction: e.target.value as StatsFilter['fromFaction'] })}
+            >
+              {FACTION_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className='faction-filter filter'>
+            <label htmlFor='to-faction-select'>To Faction</label>
+            <select 
+              id='to-faction-select'
+              value={props.filter?.toFaction || ''}
+              onChange={(e) => props.updateFilter({ toFaction: e.target.value as StatsFilter['toFaction'] })}
             >
               {FACTION_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>

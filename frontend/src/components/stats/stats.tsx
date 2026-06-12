@@ -66,7 +66,12 @@ export default function StatsComponent({ filter, data }: StatsComponentProps) {
               )}
               {filter.fromFaction && (
                 <Badge variant="outline" color="gray">
-                  Faction: {filter.fromFaction}
+                  From: {filter.fromFaction}
+                </Badge>
+              )}
+              {filter.toFaction && (
+                <Badge variant="outline" color="gray">
+                  To: {filter.toFaction}
                 </Badge>
               )}
               {filter.tile && (
